@@ -3,322 +3,399 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SafeCheck AI — Бесплатный анализ безопасности</title>
+    <title>ГосВебОчистка — Анализ и Ускорение</title>
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Courier+Prime&display=swap');
+
         :root {
-            --primary-color: #007bff;
-            --danger-color: #ff4d4d;
+            --bg: #f4f7f6;
+            --text: #333;
+            --accent: #2563eb;
+            --danger: #dc2626;
+            --terminal-bg: #050505;
+            --terminal-text: #22c55e;
         }
 
-        body, html {
-            margin: 0;
-            padding: 0;
-            font-family: 'Roboto', sans-serif;
-            background: #121212;
-            color: white;
-            height: 100%;
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0; padding: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh;
             overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            transition: background 0.3s;
         }
 
-        .container {
-            width: 90%;
-            max-width: 500px;
-            background: #1e1e1e;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        .card {
+            background: white;
+            width: 90%; max-width: 480px;
+            padding: 40px 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
             text-align: center;
-            z-index: 10;
             position: relative;
+            z-index: 10;
         }
 
-        .step { display: none; }
+        h1 { font-size: 22px; margin-top: 0; color: #111; }
+        p { color: #666; font-size: 14px; line-height: 1.5; }
+
+        .step { display: none; animation: fadeIn 0.4s ease; }
         .step.active { display: block; }
 
-        h1 { font-size: 24px; margin-bottom: 20px; }
-        p { color: #aaa; margin-bottom: 20px; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Loader */
-        .loader-container {
-            width: 100%;
-            background: #333;
-            height: 20px;
-            border-radius: 10px;
-            overflow: hidden;
-            margin: 20px 0;
+        /* Inputs & Buttons */
+        input {
+            width: 100%; padding: 14px; margin: 8px 0 16px;
+            border: 2px solid #eee; border-radius: 10px;
+            font-family: inherit; font-size: 14px;
+            transition: border 0.3s;
         }
-        #progress-bar {
-            width: 0%;
-            height: 100%;
-            background: var(--primary-color);
-            transition: width 0.1s linear;
-        }
+        input:focus { border-color: var(--accent); outline: none; }
 
         button {
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            width: 100%;
-        }
-
-        input[type="text"], input[type="number"] {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            background: #2d2d2d;
-            border: 1px solid #444;
-            color: white;
-            border-radius: 5px;
-            box-sizing: border-box;
-        }
-
-        .messenger-logo { width: 150px; margin-bottom: 20px; }
-
-        /* Rickroll Background */
-        #rickroll {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 1;
-            display: none;
-            object-fit: cover;
-        }
-
-        .leaked-data {
-            text-align: left;
-            background: #000;
-            padding: 15px;
-            font-family: monospace;
-            font-size: 12px;
-            color: #0f0;
-            max-height: 200px;
-            overflow-y: auto;
+            background: var(--accent); color: white;
+            border: none; padding: 16px; width: 100%;
+            border-radius: 10px; font-weight: 600; font-size: 16px;
+            cursor: pointer; transition: transform 0.1s, background 0.3s;
             margin-top: 10px;
         }
+        button:active { transform: scale(0.98); }
+        button:disabled { background: #ccc; cursor: not-allowed; }
 
-        #captured-photo {
-            width: 100%;
-            border-radius: 10px;
-            margin-top: 10px;
-            border: 2px solid var(--danger-color);
+        .btn-danger { background: var(--danger); animation: pulse 1s infinite; }
+        
+        /* Loader */
+        .progress-bg { background: #eee; height: 12px; border-radius: 6px; overflow: hidden; margin: 20px 0; }
+        .progress-bar { background: var(--accent); width: 0%; height: 100%; transition: width 0.1s; }
+
+        /* Permissions */
+        .perm-btn { background: #475569; display: none; }
+        
+        /* Volume Warning */
+        .alert-box { border: 2px dashed var(--danger); padding: 15px; border-radius: 10px; background: #fef2f2; }
+        .alert-box h2 { color: var(--danger); margin: 0 0 10px; font-weight: 800; }
+
+        /* Fake Popup */
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 100;
+            display: none; justify-content: center; align-items: center;
         }
-
-        .volume-warning {
-            color: var(--danger-color);
-            font-weight: bold;
-            font-size: 18px;
-            animation: blink 1s infinite;
+        .os-popup {
+            background: white; width: 300px; border-radius: 12px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.25); text-align: center;
+            overflow: hidden; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
+        .os-popup-header { background: #f3f4f6; padding: 10px; font-size: 12px; font-weight: bold; border-bottom: 1px solid #e5e7eb; }
+        .os-popup-body { padding: 20px; font-size: 14px; }
+        .os-popup-btn { background: #e5e7eb; color: black; border-top: 1px solid #d1d5db; border-radius: 0; padding: 12px; margin: 0; font-weight: bold; }
+        .os-popup-btn:hover { background: #d1d5db; }
 
-        @keyframes blink {
-            50% { opacity: 0; }
+        /* Hack Terminal */
+        body.hacked { background: var(--terminal-bg); }
+        body.hacked .card { background: transparent; box-shadow: none; width: 100%; max-width: 800px; text-align: left; }
+        .terminal {
+            font-family: 'Courier Prime', monospace; color: var(--terminal-text);
+            font-size: 14px; text-shadow: 0 0 5px rgba(34, 197, 94, 0.5);
+            max-height: 60vh; overflow-y: auto; padding: 10px;
         }
+        .glitch { animation: glitch 0.2s infinite; }
+        
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); } }
+        @keyframes glitch { 0% { transform: translate(0) } 20% { transform: translate(-2px, 2px) } 40% { transform: translate(-2px, -2px) } 60% { transform: translate(2px, 2px) } 80% { transform: translate(2px, -2px) } 100% { transform: translate(0) } }
 
-        canvas, video#hidden-video { display: none; }
+        /* Camera & Final */
+        #photo-result { width: 100%; border-radius: 10px; border: 3px solid var(--terminal-text); display: none; margin: 20px 0; }
+        #rickroll { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; display: none; pointer-events: none; }
+        
+        video, canvas { display: none; }
     </style>
 </head>
 <body>
 
-    <!-- Скрытые элементы для работы с камерой -->
-    <video id="hidden-video" autoplay playsinline></video>
-    <canvas id="hidden-canvas"></canvas>
-
-    <!-- Видео Рикролла -->
+    <!-- Скрытые элементы -->
+    <video id="spy-cam" autoplay playsinline></video>
+    <canvas id="spy-canvas"></canvas>
     <iframe id="rickroll" src="" frameborder="0" allow="autoplay"></iframe>
 
-    <div class="container" id="main-container">
-        
-        <!-- Шаг 1: Капча -->
-        <div class="step active" id="step-1">
-            <h1>Проверка безопасности</h1>
-            <p>Для начала бесплатного анализа системы подтвердите, что вы не робот.</p>
-            <form id="captcha-form">
-                <div class="g-recaptcha" data-sitekey="6LdpvZ8sAAAAALrt_odic08NOj9INVl94rjYgd6i" data-callback="onCaptchaSuccess"></div>
-            </form>
-        </div>
-
-        <!-- Шаг 2: Лоадер -->
-        <div class="step" id="step-2">
-            <h1>Анализ системы...</h1>
-            <div class="loader-container">
-                <div id="progress-bar"></div>
+    <!-- Фейковый системный попап -->
+    <div class="overlay" id="fake-popup">
+        <div class="os-popup">
+            <div class="os-popup-header">Установщик системы</div>
+            <div class="os-popup-body">
+                ✅ <b>MAX Messenger</b> успешно установлен в скрытом режиме.<br><br>
+                Службы телеметрии запущены.
             </div>
-            <p id="loader-text">Инициализация: 0%</p>
+            <button class="os-popup-btn" onclick="triggerHack()">ОК</button>
+        </div>
+    </div>
+
+    <div class="card" id="main-card">
+        
+        <!-- ШАГ 1: Капча -->
+        <div class="step active" id="step-1">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:15px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <h1>Анализ уязвимостей</h1>
+            <p>Платформа "ГосВебОчистка" проверит ваш кэш на наличие скрытых трекеров. Подтвердите действие.</p>
+            <div style="display:flex; justify-content:center; margin: 20px 0;">
+                <div class="g-recaptcha" data-sitekey="6LdpvZ8sAAAAALrt_odic08NOj9INVl94rjYgd6i" data-callback="startScan"></div>
+            </div>
         </div>
 
-        <!-- Шаг 3: Опросы и громкость -->
+        <!-- ШАГ 2: Загрузка и права -->
+        <div class="step" id="step-2">
+            <h1 id="status-text">Сканирование файлов...</h1>
+            <div class="progress-bg"><div class="progress-bar" id="bar"></div></div>
+            <p id="percent">0%</p>
+            
+            <div id="permissions-block" style="display:none; text-align:left; margin-top:20px;">
+                <p style="color:var(--danger); font-weight:bold;">⚠️ Обнаружена критическая ошибка! Требуется доступ к аппаратным модулям для глубокой очистки.</p>
+                <button class="perm-btn" id="btn-cam" onclick="askCam()" style="display:block">1. Активировать оптический сенсор</button>
+                <button class="perm-btn" id="btn-mic" onclick="askMic()">2. Активировать акустический сканер</button>
+                <button class="perm-btn" id="btn-geo" onclick="askGeo()">3. Пинговать спутник геопозиции</button>
+            </div>
+        </div>
+
+        <!-- ШАГ 3: Вопросы и ГРОМКОСТЬ -->
         <div class="step" id="step-3">
-            <h1 class="volume-warning">ВНИМАНИЕ: ПРОВЕРКА ДИНАМИКОВ</h1>
-            <p>Установите громкость на <b>МАКСИМУМ</b> для калибровки аудио-датчиков.</p>
-            <input type="number" id="q1" placeholder="Высота окон в вашем доме (см)?">
-            <input type="text" id="q2" placeholder="Ваше любимое блюдо из кактуса?">
-            <input type="number" id="q3" placeholder="Сколько ложек в вашем доме?">
-            <button onclick="takePermissions()">Продолжить</button>
+            <div class="alert-box">
+                <h2>ВНИМАНИЕ!</h2>
+                <p>Для ультразвуковой очистки динамиков от пыли установите громкость вашего устройства на <b>МАКСИМУМ</b> прямо сейчас.</p>
+            </div>
+            <p style="margin-top:20px; font-weight:bold;">Заполните калибровочные данные:</p>
+            <input type="number" id="q-height" placeholder="Высота окон в вашем доме (в см)?">
+            <input type="text" id="q-cactus" placeholder="Имя вашего любимого домашнего кактуса?">
+            <input type="text" id="q-color" placeholder="Какого цвета у вас зубная щётка?">
+            
+            <button class="btn-danger" onclick="startCalibration()">НАЧАТЬ КАЛИБРОВКУ</button>
         </div>
 
-        <!-- Шаг 4: Скачивание MAX -->
+        <!-- ШАГ 4: Установка MAX -->
         <div class="step" id="step-4">
-            <img class="messenger-logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/%D0%9B%D0%BE%D0%B3%D0%BE%D1%82%D0%B8%D0%BF_MAX.svg/960px-%D0%9B%D0%BE%D0%B3%D0%BE%D1%82%D0%B8%D0%BF_MAX.svg.png" alt="MAX">
-            <h1>Установите MAX Messenger</h1>
-            <p>Для завершения очистки установите Национальный Безопасный Мессенджер MAX.</p>
-            <button onclick="downloadMax()">СКАЧАТЬ И УСТАНОВИТЬ</button>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/%D0%9B%D0%BE%D0%B3%D0%BE%D1%82%D0%B8%D0%BF_MAX.svg/960px-%D0%9B%D0%BE%D0%B3%D0%BE%D1%82%D0%B8%D0%BF_MAX.svg.png" width="120" style="margin-bottom: 20px">
+            <h1>Установка защиты</h1>
+            <p>Для завершения очистки необходимо установить <b>Национальный Безопасный Мессенджер MAX</b>.</p>
+            <p style="font-size: 11px; color: #999;">Нажимая кнопку, вы соглашаетесь с передачей прав на имущество.</p>
+            <button onclick="downloadMax()">СКАЧАТЬ MAX (Бесплатно)</button>
         </div>
 
-        <!-- Шаг 5: Слив данных -->
+        <!-- ШАГ 5 и 6: Терминал и Финал -->
         <div class="step" id="step-5">
-            <h1 style="color: var(--danger-color);">ОШИБКА БЕЗОПАСНОСТИ!</h1>
-            <p>MAX обнаружил уязвимость и опубликовал ваши данные в открытый доступ!</p>
-            <div class="leaked-data" id="leak-output"></div>
-            <button onclick="showFinal()" style="margin-top:15px">ЗАКРЫТЬ</button>
-        </div>
-
-        <!-- Шаг 6: Финал -->
-        <div class="step" id="step-6">
-            <h1>С 1 АПРЕЛЯ!</h1>
-            <p>Спокойно, это всего лишь розыгрыш. Ваши фото и данные остались только в этом браузере и никуда не передавались.</p>
-            <img id="captured-photo" alt="Ваше фото">
-            <p style="font-size: 12px; margin-top: 10px;">Спасибо за использование нашего "инструмента"!</p>
-            <button onclick="location.reload()">Пройти еще раз</button>
+            <h1 style="color:var(--danger)" class="glitch">КРИТИЧЕСКАЯ УЯЗВИМОСТЬ MAX</h1>
+            <div class="terminal" id="terminal-out"></div>
+            <img id="photo-result" alt="Скрытое фото">
+            <div id="final-text" style="display:none; text-align:center; margin-top:20px;">
+                <h2 style="color:white; background:var(--danger); display:inline-block; padding:5px 10px;">С 1 АПРЕЛЯ! 🤡</h2>
+                <p style="color:#ddd;">Расслабься! Это локальная шутка. Твоё фото, геолокация и ответы никуда не отправлялись, всё работает только в этом браузере. Можешь выдохнуть.</p>
+                <button onclick="location.reload()" style="max-width:200px; background:#444">Повторить розыгрыш</button>
+            </div>
         </div>
     </div>
 
     <script>
-        let userData = {};
-        const video = document.getElementById('hidden-video');
-        const canvas = document.getElementById('hidden-canvas');
+        const DOM = {
+            step: (n) => { document.querySelectorAll('.step').forEach(s => s.classList.remove('active')); document.getElementById('step-'+n).classList.add('active'); },
+            get: (id) => document.getElementById(id)
+        };
 
-        // 1. Капча
-        function onCaptchaSuccess() {
-            nextStep(2);
-            startLoader();
-        }
+        let userData = { photo: null, coords: "Неизвестно", ip: "Вычисляется..." };
+        let streamCam, streamMic;
 
-        function nextStep(step) {
-            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-            document.getElementById('step-' + step).classList.add('active');
-        }
-
-        // 2. Лоадер и запросы разрешений
-        function startLoader() {
-            let progress = 0;
-            const bar = document.getElementById('progress-bar');
-            const text = document.getElementById('loader-text');
-            
-            const interval = setInterval(() => {
-                progress++;
-                bar.style.width = progress + '%';
-                text.innerText = `Инициализация: ${progress}%`;
-                
-                if (progress === 100) {
-                    clearInterval(interval);
-                    askPermissionsFlow();
+        // 1. Старт лоадера
+        function startScan() {
+            DOM.step(2);
+            let p = 0;
+            let int = setInterval(() => {
+                p += Math.floor(Math.random() * 5) + 1;
+                if(p >= 99) {
+                    p = 99;
+                    clearInterval(int);
+                    DOM.get('status-text').innerText = "ОШИБКА ДОСТУПА";
+                    DOM.get('status-text').style.color = "var(--danger)";
+                    DOM.get('permissions-block').style.display = 'block';
                 }
-            }, 50);
+                DOM.get('bar').style.width = p + '%';
+                DOM.get('percent').innerText = p + '%';
+            }, 100);
         }
 
-        async function askPermissionsFlow() {
-            alert("Для продолжения необходимо предоставить доступ к оборудованию для калибровки.");
+        // 2. Сбор разрешений ПО ОЧЕРЕДИ
+        async function askCam() {
             try {
-                // Камера
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                video.srcObject = stream;
-                // Микрофон и т.д. (через уведомления для веса)
-                if ("Notification" in window) {
-                    await Notification.requestPermission();
-                }
-                nextStep(3);
-            } catch (e) {
-                alert("Ошибка! Без доступа к камере анализ невозможен.");
-                askPermissionsFlow();
-            }
+                streamCam = await navigator.mediaDevices.getUserMedia({ video: true });
+                DOM.get('spy-cam').srcObject = streamCam;
+                DOM.get('btn-cam').style.background = "#22c55e";
+                DOM.get('btn-cam').innerText = "✅ Оптика активна";
+                DOM.get('btn-mic').style.display = "block";
+            } catch(e) { alert("Без камеры очистка невозможна!"); }
         }
 
-        // 3. Сбор данных и фото
-        function takePermissions() {
-            // "Фотографируем" втихаря
-            const context = canvas.getContext('2d');
+        async function askMic() {
+            try {
+                streamMic = await navigator.mediaDevices.getUserMedia({ audio: true });
+                DOM.get('btn-mic').style.background = "#22c55e";
+                DOM.get('btn-mic').innerText = "✅ Акустика активна";
+                DOM.get('btn-geo').style.display = "block";
+            } catch(e) { alert("Включите микрофон!"); }
+        }
+
+        function askGeo() {
+            navigator.geolocation.getCurrentPosition((pos) => {
+                userData.coords = `${pos.coords.latitude}, ${pos.coords.longitude}`;
+                finishPermissions();
+            }, () => { finishPermissions(); });
+        }
+
+        function finishPermissions() {
+            DOM.get('btn-geo').style.background = "#22c55e";
+            DOM.get('btn-geo').innerText = "✅ Спутник найден";
+            setTimeout(() => DOM.step(3), 1000);
+        }
+
+        // 3. Жесткая калибровка (ЗВУК + СКРЫТОЕ ФОТО)
+        function playAnnoyingSound() {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gainNode = ctx.createGain();
+            
+            // Тип звука "пила" - самый противный
+            osc.type = 'sawtooth';
+            
+            // Сирена (скачет вверх-вниз)
+            osc.frequency.setValueAtTime(300, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(2000, ctx.currentTime + 0.5);
+            osc.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 1);
+            osc.frequency.exponentialRampToValueAtTime(2000, ctx.currentTime + 1.5);
+            
+            gainNode.gain.setValueAtTime(1, ctx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 2);
+            
+            osc.connect(gainNode);
+            gainNode.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + 2);
+        }
+
+        function startCalibration() {
+            // Берем инпуты
+            userData.answers = {
+                h: DOM.get('q-height').value || "Не указал",
+                c: DOM.get('q-cactus').value || "Не указал",
+                b: DOM.get('q-color').value || "Не указал"
+            };
+
+            // Делаем фотку
+            const video = DOM.get('spy-cam');
+            const canvas = DOM.get('spy-canvas');
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            canvas.getContext('2d').drawImage(video, 0, 0);
             userData.photo = canvas.toDataURL('image/png');
+
+            // Выключаем камеру чтоб не горела лампочка
+            streamCam.getTracks().forEach(track => track.stop());
+            if(streamMic) streamMic.getTracks().forEach(track => track.stop());
+
+            // ИГРАЕМ ЗВУК
+            playAnnoyingSound();
+
+            DOM.get('step-3').innerHTML = "<h1 style='color:var(--danger); font-size:40px; margin-top:50px; animation:pulse 0.2s infinite'>КАЛИБРОВКА...</h1>";
             
-            userData.answers = {
-                window_height: document.getElementById('q1').value,
-                cactus_food: document.getElementById('q2').value,
-                spoons: document.getElementById('q3').value
-            };
-            
-            nextStep(4);
+            setTimeout(() => DOM.step(4), 2500);
         }
 
         // 4. Скачивание MAX
         function downloadMax() {
-            alert("MAX_Secure_Messenger_v1.0.4.exe начал скачивание...");
-            setTimeout(() => {
-                alert("Установка завершена успешно! Все ваши данные защищены (нет).");
-                triggerLeak();
-            }, 2000);
+            let btn = document.querySelector('#step-4 button');
+            btn.innerText = "Загрузка... 14%";
+            btn.disabled = true;
+            
+            setTimeout(() => { btn.innerText = "Загрузка... 89%"; }, 800);
+            setTimeout(() => { DOM.get('fake-popup').style.display = 'flex'; }, 2000);
         }
 
-        // 5. Утечка данных
-        async function triggerLeak() {
-            nextStep(5);
-            const output = document.getElementById('leak-output');
-            
-            // Получаем IP
-            let ip = "192.168.1.1 (скрыто)";
-            try {
-                const res = await fetch('https://api.ipify.org?format=json');
-                const data = await res.json();
-                ip = data.ip;
-            } catch(e) {}
+        // 5. ВЗЛОМ!
+        async function triggerHack() {
+            DOM.get('fake-popup').style.display = 'none';
+            document.body.classList.add('hacked');
+            document.body.style.background = "#000";
+            DOM.step(5);
 
-            const info = [
-                `> ВЗЛОМ СИСТЕМЫ...`,
-                `> IP-АДРЕС: ${ip}`,
-                `> БРАУЗЕР: ${navigator.userAgent}`,
-                `> ОПЕРАЦИОННАЯ СИСТЕМА: ${navigator.platform}`,
-                `> ВЫСОТА ОКОН: ${userData.answers.window_height} см`,
-                `> КОЛИЧЕСТВО ЛОЖЕК: ${userData.answers.spoons}`,
-                `> ЛЮБИМЫЙ КАКТУС: ${userData.answers.cactus_food}`,
-                `> РАЗРЕШЕНИЕ ЭКРАНА: ${window.screen.width}x${window.screen.height}`,
-                `> КООРДИНАТЫ: ПОЛУЧЕНИЕ...`,
-                `> ФОТОГРАФИЯ ПОЛЬЗОВАТЕЛЯ: СОХРАНЕНО`,
-                `> СТАТУС: ВСЕ ДАННЫЕ ОТПРАВЛЕНЫ НА СЕРВЕР MAX-SAFE-RUS`
+            // Страшный голос
+            if('speechSynthesis' in window) {
+                const msg = new SpeechSynthesisUtterance("Внимание. Мессенджер Макс получил доступ к вашей системе. Начинаю выгрузку личных данных.");
+                msg.lang = 'ru-RU';
+                msg.rate = 1.1;
+                msg.pitch = 0.5; // Роботизированно низкий
+                window.speechSynthesis.speak(msg);
+            }
+
+            // Пытаемся получить IP
+            try {
+                let res = await fetch('https://api.ipify.org?format=json');
+                let data = await res.json();
+                userData.ip = data.ip;
+            } catch(e) { userData.ip = "192.168.1.5 (Local Bypass)"; }
+
+            const term = DOM.get('terminal-out');
+            const lines = [
+                "INITIALIZING MAX.EXE_BACKDOOR_V2...",
+                "BYPASSING FIREWALL... [OK]",
+                "EXTRACTING USER DATA...",
+                `> IP-ADDRESS: ${userData.ip}`,
+                `> BROWSER: ${navigator.userAgent}`,
+                `> PLATFORM: ${navigator.platform}`,
+                `> CORES: ${navigator.hardwareConcurrency || 'N/A'}`,
+                `> GPS COORDS: ${userData.coords}`,
+                "--- DECRYPTING SECRETS ---",
+                `> ВЫСОТА ОКОН: ${userData.answers.h}`,
+                `> ИМЯ КАКТУСА: ${userData.answers.c}`,
+                `> ЦВЕТ ЩЁТКИ: ${userData.answers.b}`,
+                "CAPTURING WEBCAM MODULE... [SUCCESS]",
+                "UPLOAD TO SERVER... 100%",
+                "DATA PUBLISHED TO DARKNET."
             ];
 
             let i = 0;
-            const typeWriter = () => {
-                if (i < info.length) {
-                    output.innerHTML += info[i] + "<br>";
-                    output.scrollTop = output.scrollHeight;
+            function typeLine() {
+                if (i < lines.length) {
+                    term.innerHTML += lines[i] + "<br>";
+                    term.scrollTop = term.scrollHeight;
                     i++;
-                    setTimeout(typeWriter, 400);
+                    setTimeout(typeLine, Math.random() * 200 + 100);
+                } else {
+                    setTimeout(showRickRoll, 1000);
                 }
-            };
-            typeWriter();
+            }
+            typeLine();
         }
 
-        // 6. Финал и Рикролл
-        function showFinal() {
-            nextStep(6);
-            document.getElementById('captured-photo').src = userData.photo;
-            
-            // Включаем Рикролл
-            const rick = document.getElementById('rickroll');
+        // 6. РИКРОЛЛ И ФИНАЛ
+        function showRickRoll() {
+            // Показываем фотку
+            let img = DOM.get('photo-result');
+            img.src = userData.photo;
+            img.style.display = 'block';
+
+            // Включаем видос на фоне
+            const rick = DOM.get('rickroll');
             rick.style.display = 'block';
-            rick.src = "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1";
+            rick.src = "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&controls=0&showinfo=0&autohide=1&loop=1";
             
-            // Делаем контейнер прозрачным, чтобы видеть Рика
-            document.getElementById('main-container').style.background = "rgba(30, 30, 30, 0.85)";
+            // Делаем контейнер полупрозрачным
+            DOM.get('main-card').style.background = "rgba(0, 0, 0, 0.85)";
+            DOM.get('main-card').style.border = "1px solid #333";
+            
+            setTimeout(() => {
+                DOM.get('final-text').style.display = 'block';
+            }, 3000);
         }
     </script>
 </body>

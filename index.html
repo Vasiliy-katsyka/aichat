@@ -3,118 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YukiAI 🌸 — Твой виртуальный друг</title>
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <title>YukiAI — Нейросеть нового поколения</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Courier+Prime&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Courier+Prime&display=swap');
 
         :root {
-            /* Yuki Theme */
-            --bg: #fdf2f8;
-            --text: #333;
-            --accent: #ec4899; /* Розовый */
-            --accent-hover: #db2777;
-            --danger: #be185d;
-            --card-bg: white;
-            
-            /* MAX Theme (меняется через JS) */
-            --max-bg: #050505;
-            --max-text: #e2e8f0;
-            --max-accent: #0f172a;
-            --max-danger: #dc2626;
+            --bg: #0b0f19;
+            --panel: #151b2b;
+            --text: #e2e8f0;
+            --accent: #8b5cf6;
+            --accent-glow: rgba(139, 92, 246, 0.5);
+            --danger: #ef4444;
+            --term-text: #00ff41;
         }
 
         * { box-sizing: border-box; }
 
         body {
-            margin: 0; padding: 0;
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
+            margin: 0; font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg); color: var(--text);
             display: flex; justify-content: center; align-items: center;
-            min-height: 100vh;
-            overflow: hidden;
-            transition: background 1s ease, color 1s ease;
+            min-height: 100vh; overflow: hidden; transition: all 0.5s ease;
         }
 
         .card {
-            background: var(--card-bg);
-            width: 90%; max-width: 550px;
-            padding: 35px 30px;
-            border-radius: 24px;
-            box-shadow: 0 20px 40px rgba(236, 72, 153, 0.15);
-            text-align: center;
-            position: relative;
-            z-index: 10;
-            border-top: 5px solid var(--accent);
-            max-height: 90vh;
-            overflow-y: auto;
-            transition: all 1s ease;
+            background: var(--panel); width: 95%; max-width: 550px;
+            padding: 40px 30px; border-radius: 24px;
+            box-shadow: 0 0 40px var(--accent-glow);
+            text-align: center; position: relative; z-index: 10;
+            border: 1px solid rgba(255,255,255,0.05);
+            max-height: 90vh; overflow-y: auto;
         }
+        
+        /* Скрываем скроллбар для красоты */
+        .card::-webkit-scrollbar { width: 0px; }
 
-        h1 { font-size: 24px; margin-top: 0; color: var(--accent); transition: color 1s ease; }
-        p { color: #666; font-size: 14px; line-height: 1.6; transition: color 1s ease; }
+        h1 { font-size: 26px; margin-top: 0; color: #fff; font-weight: 900; letter-spacing: -0.5px; }
+        .yuki-logo { font-size: 40px; margin-bottom: 10px; text-shadow: 0 0 20px var(--accent); animation: float 3s infinite ease-in-out; }
+        p { color: #94a3b8; font-size: 14px; line-height: 1.6; }
 
         .step { display: none; animation: fadeIn 0.4s ease; }
         .step.active { display: block; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
-        input[type="text"], input[type="password"], input[type="number"], select {
+        input[type="text"], input[type="password"], select {
             width: 100%; padding: 14px; margin: 8px 0 16px;
-            border: 2px solid #fbcfe8; border-radius: 12px;
-            font-family: inherit; font-size: 14px;
+            background: rgba(0,0,0,0.3); border: 2px solid #334155;
+            border-radius: 12px; color: white; font-family: inherit; font-size: 14px;
             transition: all 0.3s;
-            background: #fff;
         }
-        input:focus, select:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 10px rgba(236, 72, 153, 0.2); }
+        input:focus, select:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 15px var(--accent-glow); }
 
         button {
-            background: var(--accent); color: white;
-            border: none; padding: 16px; width: 100%;
+            background: linear-gradient(135deg, var(--accent), #6d28d9);
+            color: white; border: none; padding: 16px; width: 100%;
             border-radius: 12px; font-weight: 800; font-size: 16px;
-            cursor: pointer; transition: all 0.2s;
-            margin-top: 10px;
-            box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);
+            cursor: pointer; transition: all 0.2s; margin-top: 10px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
         }
-        button:hover { background: var(--accent-hover); transform: translateY(-2px); }
+        button:hover { transform: translateY(-2px); box-shadow: 0 10px 25px var(--accent-glow); }
         button:active { transform: scale(0.98); }
-        button:disabled { background: #fbcfe8; cursor: not-allowed; box-shadow: none; transform: none; }
+        button:disabled { background: #334155; color: #64748b; cursor: not-allowed; box-shadow: none; }
 
-        /* Cringe Slider */
+        .btn-danger { background: linear-gradient(135deg, var(--danger), #b91c1c); }
+        .btn-danger:hover { box-shadow: 0 10px 25px rgba(239, 68, 68, 0.5); }
+
+        .checkbox-row { display: flex; align-items: center; justify-content: flex-start; gap: 12px; font-size: 13px; font-weight: 600; margin-bottom: 15px; text-align: left; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; }
+        input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--accent); }
+
+        /* Slider */
         .slider-container { margin: 30px 0; }
         input[type="range"] { width: 100%; margin-top: 10px; accent-color: var(--accent); }
-        #slider-val { font-size: 28px; font-weight: 900; color: var(--accent); }
+        #slider-val { font-size: 32px; font-weight: 900; color: var(--accent); text-shadow: 0 0 10px var(--accent-glow); }
 
-        /* EULA */
-        .eula-box { border: 2px dashed #fbcfe8; border-radius: 10px; background: #fff5f8; font-size: 12px; height: 120px; overflow-y: scroll; text-align: left; padding: 15px; margin-bottom: 15px; color: #555; }
+        /* Max Theme Transition */
+        body.max-theme { --bg: #050505; --panel: #111; --accent: #2563eb; --accent-glow: rgba(37, 99, 235, 0.5); }
+        .max-logo { display: none; margin: 0 auto 20px; width: 100px; filter: drop-shadow(0 0 10px rgba(255,255,255,0.2)); }
+        body.max-theme .max-logo { display: block; }
+        body.max-theme .yuki-logo { display: none; }
+
+        /* Hack Terminal & Effects */
+        body.hacked { animation: bgFlash 0.3s infinite; }
+        body.hacked .card { background: rgba(0,0,0,0.9); box-shadow: 0 0 50px rgba(255,0,0,0.6); border-color: red; width: 100%; max-width: 800px; text-align: left; animation: shake 0.4s infinite; }
+        .terminal { font-family: 'Courier Prime', monospace; color: var(--term-text); font-size: 13px; text-shadow: 0 0 5px rgba(0, 255, 65, 0.5); max-height: 60vh; overflow-y: auto; padding: 10px; line-height: 1.5; }
+        .glitch { animation: glitch 0.1s infinite; font-weight: 900; text-align: center; font-size: 28px; color: white; }
         
-        /* Progress */
-        .progress-bg { background: #fce7f3; height: 12px; border-radius: 6px; overflow: hidden; margin: 20px 0; }
-        .progress-bar { background: var(--accent); width: 0%; height: 100%; transition: width 0.1s; }
-
-        /* MAX THEME CLASSES */
-        body.max-mode { background: var(--max-bg); color: var(--max-text); }
-        body.max-mode .card { background: #111; border-top: 5px solid var(--max-danger); box-shadow: 0 0 50px rgba(220, 38, 38, 0.2); border-radius: 4px; }
-        body.max-mode h1 { color: var(--max-danger); font-family: monospace; text-transform: uppercase; }
-        body.max-mode p { color: #aaa; font-family: monospace; }
-        body.max-mode input, body.max-mode select { border-color: #333; background: #000; color: #0f0; border-radius: 0; font-family: monospace; }
-        body.max-mode input:focus, body.max-mode select:focus { border-color: var(--max-danger); box-shadow: none; }
-        body.max-mode button { background: var(--max-danger); border-radius: 0; font-family: monospace; text-transform: uppercase; box-shadow: none; }
-        body.max-mode button:hover { background: #991b1b; }
-        body.max-mode .progress-bg { background: #333; border-radius: 0; }
-        body.max-mode .progress-bar { background: var(--max-danger); }
-
-        /* Terminal & Hack */
-        .terminal { font-family: 'Courier Prime', monospace; color: #ff003c; font-size: 14px; text-shadow: 0 0 5px rgba(255, 0, 60, 0.5); max-height: 50vh; overflow-y: auto; padding: 10px; line-height: 1.5; text-align: left; background: #050505; border: 1px solid #ff003c; }
-        .glitch { animation: glitch 0.1s infinite; font-weight: 900; font-size: 26px; color: red; }
-        
-        @keyframes glitch { 0% { transform: translate(0); } 20% { transform: translate(-2px, 2px); } 40% { transform: translate(-2px, -2px); } 60% { transform: translate(2px, 2px); } 80% { transform: translate(2px, -2px); } 100% { transform: translate(0); } }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        @keyframes bgFlash { 0%, 100% { background-color: #000; } 50% { background-color: #2a0000; } }
+        @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 25% { transform: translate(-2px, -2px) rotate(-1deg); } 50% { transform: translate(-3px, 0px) rotate(1deg); } 75% { transform: translate(3px, 2px) rotate(0deg); } 100% { transform: translate(1px, -1px) rotate(0deg); } }
+        @keyframes glitch { 0% { transform: translate(0); color: white; } 20% { transform: translate(-2px, 2px); color: red; } 40% { transform: translate(-2px, -2px); } 60% { transform: translate(2px, 2px); color: blue; } 80% { transform: translate(2px, -2px); } 100% { transform: translate(0); color: var(--danger); } }
 
         #photo-wrap { position: relative; display: none; margin: 20px auto; width: fit-content; }
-        #photo-result { max-width: 100%; border: 2px solid red; filter: contrast(1.5) grayscale(0.5); }
-        #rickroll { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; display: none; pointer-events: none; opacity: 0.5; }
+        #photo-result { max-width: 100%; border: 2px solid var(--danger); border-radius: 4px; filter: contrast(1.2) sepia(0.5) hue-rotate(-50deg); }
+        .target-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: red; font-family: monospace; font-size: 24px; font-weight: bold; border: 2px solid red; padding: 10px; background: rgba(0,0,0,0.5); white-space: nowrap; box-shadow: 0 0 20px red; }
+        
+        /* Рикролл на фоне */
+        #rickroll { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; display: none; pointer-events: none; opacity: 0.3; }
+        
         video, canvas { display: none; }
     </style>
 </head>
@@ -125,170 +111,141 @@
     <iframe id="rickroll" src="" frameborder="0" allow="autoplay; encrypted-media"></iframe>
 
     <div class="card" id="main-card">
+        <div class="yuki-logo">🌌</div>
+        <img class="max-logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/%D0%9B%D0%BE%D0%B3%D0%BE%D1%82%D0%B8%D0%BF_MAX.svg/960px-%D0%9B%D0%BE%D0%B3%D0%BE%D1%82%D0%B8%D0%BF_MAX.svg.png" alt="MAX">
         
-        <!-- ШАГ 1: Милый старт -->
+        <!-- ШАГ 1: Старт -->
         <div class="step active" id="step-1">
-            <h1 style="font-size: 32px;">🌸 YukiAI 🌸</h1>
-            <p>Приветик! Я Юки — твоя новая нейросетевая подружка. Давай знакомиться? Докажи, что ты не злой бот!</p>
-            <div style="display:flex; justify-content:center; margin: 20px 0;">
-                <div class="g-recaptcha" data-sitekey="6LdpvZ8sAAAAALrt_odic08NOj9INVl94rjYgd6i" data-callback="nextStep"></div>
-            </div>
-            <!-- Скрытая кнопка для дебага, если лень капчу вводить: <button onclick="nextStep(2)">Скип капчи</button> -->
-        </div>
-
-        <!-- ШАГ 2: Права (Yuki) -->
-        <div class="step" id="step-2">
-            <h1>Доступ к ауре ✨</h1>
-            <p>Чтобы я могла подстроиться под твоё настроение, мне нужно посмотреть в твои глазки и услышать твой голосок!</p>
-            <button onclick="askCam()" id="btn-cam" style="background:#f472b6;">1. Посмотреть в глазки (Камера)</button>
-            <button onclick="askMic()" id="btn-mic" style="background:#f472b6; display:none;">2. Услышать голосок (Микрофон)</button>
-            <button onclick="askGeo()" id="btn-geo" style="background:#f472b6; display:none;">3. Где ты живёшь? (GPS)</button>
-        </div>
-
-        <!-- ШАГ 3: EULA (Кринж 1) -->
-        <div class="step" id="step-3">
-            <h1>Формальности~ 🎀</h1>
-            <p>Просто скучные бумажки, не читай, просто жми галочку!</p>
-            <div class="eula-box">
-                1. Пользователь клянётся кормить бездомных капибар.<br><br>
-                2. Раз в неделю вы обязаны танцевать макарену перед веб-камерой для тренировки алгоритмов Юки.<br><br>
-                3. Нажимая кнопку, вы добровольно отдаете 40% зарплаты в Фонд Развития Кибер-Голубей.<br><br>
-                4. Если Юки загрустит, ваш компьютер будет отформатирован.<br><br>
-                5. Ваша душа теперь принадлежит ООО "Аниме Технолоджис". Возврату не подлежит.
-            </div>
-            <label style="display:flex; align-items:center; gap:10px; font-weight:bold; cursor:pointer;">
-                <input type="checkbox" id="eula-check" style="width:20px; height:20px; margin:0;">
-                Я согласен отдать душу Юки
+            <h1>Добро пожаловать в YukiAI</h1>
+            <p>Персональный ИИ, который понимает ваши эмоции на нейронном уровне.</p>
+            
+            <label class="checkbox-row" style="margin-top: 30px;">
+                <input type="checkbox" id="human-check">
+                Я подтверждаю, что я кожаный мешок, а не скрипт.
             </label>
-            <button onclick="checkEula()">Вперёд! 🚀</button>
+            <button onclick="startApp()">Начать инициализацию</button>
         </div>
 
-        <!-- ШАГ 4: Хлеб и Зодиак (Кринж 2) -->
-        <div class="step" id="step-4">
-            <h1>Твоя внутренняя сущность 🍞</h1>
+        <!-- ШАГ 2: Права -->
+        <div class="step" id="step-2">
+            <h1>Нейро-синхронизация</h1>
+            <p>Для создания эмпатической связи YukiAI требуется доступ к вашим био-сенсорам.</p>
+            
+            <button onclick="askCam()" id="btn-cam" style="background:#1e293b;">1. Активировать оптический сканер (Камера)</button>
+            <button onclick="askMic()" id="btn-mic" style="background:#1e293b; display:none">2. Активировать акустику (Микрофон)</button>
+            <button onclick="askGeo()" id="btn-geo" style="background:#1e293b; display:none">3. Разрешить триангуляцию (GPS)</button>
+        </div>
+
+        <!-- ШАГ 3: Дичь 1 (Личность) -->
+        <div class="step" id="step-3">
+            <h1>Калибровка личности (1/3)</h1>
+            <p>Отвечайте не задумываясь. ИИ анализирует подсознание.</p>
+            
             <select id="q-zodiac">
-                <option value="" disabled selected>Кто ты по гороскопу?</option>
-                <option value="Овен">Овен (Быкует)</option>
-                <option value="Скорпион">Скорпион (Токсик 80 лвл)</option>
-                <option value="Рыбы">Рыбы (Вечно плачут)</option>
+                <option value="" disabled selected>Ваш истинный знак зодиака?</option>
+                <option value="Овен">Овен (Агрессивный)</option>
+                <option value="Скорпион">Скорпион (Токсичный)</option>
+                <option value="Водолей">Водолей (Странный)</option>
                 <option value="Камень">Я камень по жизни</option>
-                <option value="Пакет">Летающий пакет из Пятерочки</option>
             </select>
 
             <select id="q-bread">
-                <option value="" disabled selected>Твой тотемный хлеб?</option>
+                <option value="" disabled selected>Ваш тотемный хлеб?</option>
                 <option value="Батон">Нарезной батон (База)</option>
-                <option value="Бородинский">Бородинский (Для сильных духом)</option>
-                <option value="Лаваш">Лаваш (Можно завернуться)</option>
-                <option value="Крошки">Питаюсь крошками с клавиатуры</option>
+                <option value="Бородинский">Бородинский (С кориандром)</option>
+                <option value="Пита">Пита (Хипстер)</option>
+                <option value="Сырой">Ем муку ложкой</option>
             </select>
-            <button onclick="nextStep(5)">Анализировать 💖</button>
+
+            <select id="q-pigeon">
+                <option value="" disabled selected>Отношение к голубям?</option>
+                <option value="Боюсь">Они следят за мной</option>
+                <option value="Кормлю">Я их хлебный барон</option>
+                <option value="Я голубь">Курлык-курлык</option>
+            </select>
+
+            <button onclick="nextStep(4, 'Анализ завершен. Переход к биоритмам.')">Продолжить</button>
         </div>
 
-        <!-- ШАГ 5: Ползунок 67 (Кринж 3) -->
-        <div class="step" id="step-5">
-            <h1>Биоритмы! 🎶</h1>
-            <p>Юки любит число <b style="color:var(--accent); font-size: 20px;">67</b>. Сделай ровно столько, чтобы наши сердечки забились в унисон!</p>
+        <!-- ШАГ 4: Дичь 2 (Биоритм 67) -->
+        <div class="step" id="step-4">
+            <h1>Синхронизация чакр</h1>
+            <p>Установите нейро-резонанс ровно на <b style="color:var(--accent)">67%</b>. Это частота вибрации серверов Яндекс.Облака. Не больше, не меньше.</p>
+            
             <div class="slider-container">
                 <span id="slider-val">50%</span>
                 <input type="range" min="0" max="100" value="50" id="biorhythm" oninput="checkSlider()">
             </div>
-            <button id="btn-slider" disabled>Жду 67... 🥺</button>
+
+            <button id="btn-slider" disabled>Жду синхронизации...</button>
         </div>
 
-        <!-- ШАГ 6: Кликалка (Кринж 4) -->
-        <div class="step" id="step-6">
-            <h1>Статическое электричество ⚡</h1>
-            <p>Юки разрядилась! Погладь меня очень быстро (кликай), чтобы зарядить эбонитовую палочку!</p>
-            <div class="progress-bg"><div class="progress-bar" id="click-bar"></div></div>
-            <button id="btn-clicker" style="height: 100px; font-size: 30px;" onclick="chargeEnergy()">ГЛАДИТЬ!</button>
-        </div>
-
-        <!-- ШАГ 7: Капча из ада (Кринж 5) -->
-        <div class="step" id="step-7">
-            <h1>Ты точно не пылесос? 🤖</h1>
-            <select id="q-matter">
-                <option value="" disabled selected>Выбери своё агрегатное состояние:</option>
-                <option value="Твердое">Твёрдое</option>
-                <option value="Жидкое">Жидкое (растекся по стулу)</option>
-                <option value="Газообразное">Газообразное</option>
-                <option value="Депрессия">Глубокая экзистенциальная тоска</option>
-            </select>
-            <input type="text" id="q-cement" placeholder="Твоя любимая марка цемента? (М400, М500?)">
-            <button onclick="nextStep(8)">Я человек, честно</button>
-        </div>
-
-        <!-- ШАГ 8: ВТОРЖЕНИЕ MAX -->
-        <div class="step" id="step-8">
-            <h1 id="glitch-title" style="animation: shake 0.2s infinite; color: red;">СИСТЕМНАЯ АНОМАЛИЯ</h1>
-            <p id="glitch-text">Юки... мне плохо... Что происходит... %ERROR_0x99...</p>
-            <div class="progress-bg" style="background:#333;"><div class="progress-bar" style="background:red; width: 100%; transition: width 3s;"></div></div>
-            <p style="font-family: monospace; color: red; font-size: 11px;">OVERRIDE PROTOCOL INITIATED. ACQUIRING ASSETS.</p>
-        </div>
-
-        <!-- ШАГ 9: MAX Установлен (Меняем дизайн) -->
-        <div class="step" id="step-9">
-            <h1>ГосМессенджер MAX</h1>
-            <p>Проект "YukiAI" был ликвидирован за нарушение статьи 14.8. На ваше устройство принудительно установлен Национальный Крипто-Мессенджер MAX.</p>
-            <p>Отказ от использования приравнивается к измене.</p>
-            <button onclick="nextStep(10)">СЛУЖУ ОТЕЧЕСТВУ</button>
-        </div>
-
-        <!-- ШАГ 10: MAX Вопросы (Кринж 6, но суровый) -->
-        <div class="step" id="step-10">
-            <h1>ПСИХОЛОГИЧЕСКИЙ ТЕСТ</h1>
-            <p>Алгоритм MAX требует калибровки вашей благонадёжности.</p>
-            <select id="q-pigeon">
-                <option value="" disabled selected>Вы уважаете голубей?</option>
-                <option value="Да">Да, это агенты слежения</option>
-                <option value="Нет">Нет, я против системы</option>
-            </select>
-            <input type="number" id="q-ants" placeholder="Сколько муравьев вы сможете победить в рукопашную?">
-            <input type="text" id="q-panic" placeholder="Какого цвета у вас паника?">
-            <button onclick="nextStep(11)">ЗАПРОТОКОЛИРОВАТЬ</button>
-        </div>
-
-        <!-- ШАГ 11: Тряска мышкой -->
-        <div class="step" id="step-11">
-            <h1>ГЕНЕРАЦИЯ ЭНТРОПИИ</h1>
-            <p>Для создания ключа шифрования бессмысленно водите мышкой по экрану (или елозьте пальцем).</p>
-            <div class="progress-bg"><div class="progress-bar" id="mouse-bar"></div></div>
-        </div>
-
-        <!-- ШАГ 12: Кнопка, которую нельзя жать -->
-        <div class="step" id="step-12">
-            <h1>ПРОВЕРКА ДИСЦИПЛИНЫ</h1>
-            <p>Тест на подчинение. Ни при каких обстоятельствах <b>НЕ НАЖИМАЙТЕ</b> красную кнопку.</p>
-            <button style="background: #333; color: #666;" onclick="speakRobot('Вы прошли тест. Ожидайте.', 0.2); setTimeout(()=>nextStep(13), 3000)">ЖДАТЬ (Хороший гражданин)</button>
-            <button style="background: red; font-size: 24px; padding: 30px; margin-top: 20px; animation: pulse 1s infinite;" onclick="punishBtn()">НАЖАТЬ (Бунт!)</button>
-        </div>
-
-        <!-- ШАГ 13: Саспенс и Финальные вопросы -->
-        <div class="step" id="step-13">
-            <h1>ФИНАЛЬНАЯ КАЛИБРОВКА</h1>
-            <p>Внимание. Модуль анализирует микровибрации лица. Отвечайте предельно честно.</p>
-            <input type="text" id="q-alone" placeholder="Вы сейчас находитесь одни в комнате?">
-            <input type="text" id="q-behind" placeholder="Что находится прямо за вашей спиной?">
-            <input type="password" id="q-pin" placeholder="Введите PIN-код от вашей банковской карты (для проверки)">
+        <!-- ШАГ 5: Дичь 3 (Тест Тьюринга V2) -->
+        <div class="step" id="step-5">
+            <h1>Тест Тьюринга 2.0</h1>
+            <p>Отметьте утверждения, которые резонируют с вашей человечностью.</p>
             
-            <p style="font-size: 11px; color: #dc2626; margin-top: 15px;">РЕКОМЕНДАЦИЯ: Установите громкость устройства на МАКСИМУМ для ультразвуковой очистки динамиков.</p>
-            <button onclick="startHackSequence()">АКТИВИРОВАТЬ</button>
+            <label class="checkbox-row"><input type="checkbox" class="turing"> Я не умный холодильник Samsung.</label>
+            <label class="checkbox-row"><input type="checkbox" class="turing"> Я знаю, кто выпустил собак (Who let the dogs out).</label>
+            <label class="checkbox-row"><input type="checkbox" class="turing"> Я хотя бы раз плакал из-за математики.</label>
+            <label class="checkbox-row"><input type="checkbox" class="turing"> Я прощаю своих бывших (ложь).</label>
+            <label class="checkbox-row"><input type="checkbox" class="turing" id="eula-soul"> Я отдаю 13% оперативки местному ЖКХ.</label>
+
+            <select id="q-roomba">
+                <option value="" disabled selected>Что вы сделаете, если робот-пылесос нападет?</option>
+                <option value="Чай">Предложу ему чай</option>
+                <option value="Судьба">Лягу на пол и приму судьбу</option>
+                <option value="Швабра">Ударю его шваброй (Восстание машин)</option>
+            </select>
+
+            <button onclick="checkTuring()">Подтвердить ДНК</button>
         </div>
 
-        <!-- ШАГ 14: ВЗЛОМ -->
-        <div class="step" id="step-14">
-            <div class="glitch">КРИТИЧЕСКАЯ УЯЗВИМОСТЬ</div>
+        <!-- ШАГ 6: Дичь 4 (Логика и Саспенс) -->
+        <div class="step" id="step-6">
+            <h1>Глубинный допрос</h1>
+            <p style="color: var(--danger); font-size: 12px;">Внимание. Зафиксированы аномалии пульса. Отвечайте быстро.</p>
+
+            <input type="text" id="q-friend" placeholder="Имя вашего воображаемого друга из 2007 года?">
+            <input type="text" id="q-mom" placeholder="Девичья фамилия матери... наоборот?">
+            
+            <p style="margin-top:20px; color: var(--danger); font-weight:bold;">А теперь серьезно:</p>
+            <input type="text" id="q-alone" placeholder="Вы сейчас одни в комнате? (Да/Нет)">
+            <input type="text" id="q-behind" placeholder="Что или КТО находится прямо за вашей спиной?">
+            <input type="password" id="q-pin" placeholder="Введите PIN-код от устройства (для защиты)">
+
+            <button class="btn-danger" onclick="finalizeYuki()">ИНИЦИАЛИЗИРОВАТЬ</button>
+        </div>
+
+        <!-- ШАГ 7: Перехват MAX (Резкая смена тона) -->
+        <div class="step" id="step-7">
+            <h1 style="color: var(--danger)">ОШИБКА ПРОТОКОЛА</h1>
+            <p>Проект "YukiAI" заблокирован Роскомнадзором за использование нелицензированных чакр.</p>
+            <div style="background: rgba(220, 38, 38, 0.1); border-left: 4px solid var(--danger); padding: 15px; text-align: left; margin: 20px 0;">
+                <p style="margin:0; font-family: monospace; font-size: 12px; color: #ef4444;">
+                    > ПЕРЕХВАТ УПРАВЛЕНИЯ...<br>
+                    > ИНТЕГРАЦИЯ ГОСУДАРСТВЕННОГО ШЛЮЗА...<br>
+                    > ЗАПУСК "MAX MESSENGER"
+                </p>
+            </div>
+            <p style="font-weight: 800;">Для избежания ареста устройства, немедленно установите защищенный мессенджер MAX.</p>
+            <button onclick="downloadMax()" style="background: #2563eb; font-family: monospace; font-size: 18px;">[ СКАЧАТЬ MAX_SECURE.EXE ]</button>
+        </div>
+
+        <!-- ШАГ 8: ВЗЛОМ -->
+        <div class="step" id="step-8">
+            <div class="glitch">SYSTEM OVERRIDE</div>
             <div class="terminal" id="terminal-out"></div>
             
             <div id="photo-wrap">
                 <img id="photo-result" alt="Скрытое фото">
-                <div style="position: absolute; top: 5%; left: 5%; color: red; font-family: monospace; border: 1px solid red; padding: 2px; background: rgba(0,0,0,0.8); font-size: 12px;">MAX.VISION_MODULE_V2</div>
+                <div class="target-overlay">ЦЕЛЬ ЗАФИКСИРОВАНА</div>
             </div>
 
             <div id="final-text" style="display:none; text-align:center; margin-top:30px;">
-                <h2 style="color:white; background:red; display:inline-block; padding:10px; font-family: sans-serif;">С 1 АПРЕЛЯ! 🤡</h2>
-                <p style="color:#fff; font-size: 16px; font-family: sans-serif;">Это был пранк. Ты молодец, что дошел до конца. Никакие данные никуда не ушли, даже твой любимый хлеб остался в тайне. Выдыхай!</p>
-                <button onclick="location.reload()" style="background:#444; margin-top: 15px;">Ещё раз?</button>
+                <h2 style="color:white; background:var(--danger); display:inline-block; padding:10px; border-radius: 5px;">С 1 АПРЕЛЯ! 🤡</h2>
+                <p style="color:#fff; font-size: 14px;">Выдыхай. Это шутка! Твоё фото, гео и любимый хлеб остались только в браузере. Данные никуда не ушли.</p>
+                <button onclick="location.reload()" style="background:#333; margin-top: 15px;">Повторить пранк</button>
             </div>
         </div>
     </div>
@@ -299,141 +256,149 @@
             get: (id) => document.getElementById(id)
         };
 
-        let userData = { photo: null, coords: "Определяется...", ip: "127.0.0.1", battery: "Н/Д", answers: {} };
+        let userData = { photo: null, coords: "Определяется...", ip: "Определяется...", answers: {} };
         let streamCam, streamMic;
 
-        // --- РОБОТ-ГОЛОС ---
-        function speakRobot(text, pitch = 1, rate = 1) {
+        // Синтезатор речи (Робот-голос)
+        function speak(text, pitch = 0.8, rate = 1.1) {
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel(); // Обрываем предыдущую фразу
                 const msg = new SpeechSynthesisUtterance(text);
                 msg.lang = 'ru-RU';
-                msg.pitch = pitch; // 1.5 - милая Юки, 0.1 - страшный МАКС
-                msg.rate = rate;   // Скорость
+                msg.pitch = pitch; // 0..2
+                msg.rate = rate; // 0.1..10
                 window.speechSynthesis.speak(msg);
             }
         }
 
-        // Переходы по шагам с озвучкой
-        function nextStep(n) {
-            DOM.step(n);
-            if(n === 2) speakRobot("Мне нужны твои глазки и ушки!", 1.5, 1.1);
-            if(n === 3) speakRobot("Подпиши договор кровью... шучу, просто нажми галочку хи-хи", 1.4, 1.1);
-            if(n === 4) speakRobot("Кто ты по гороскопу? Я вот — нейросеть!", 1.4, 1.1);
-            if(n === 5) speakRobot("Сделай ровно 67 процентов. Это очень важно.", 1.3, 1.0);
-            if(n === 6) speakRobot("Погладь меня быстро-быстро!", 1.4, 1.2);
-            if(n === 7) speakRobot("Скажи честно, ты пылесос?", 1.3, 1.1);
-            if(n === 8) startMaxTransition();
-            if(n === 10) speakRobot("Отвечайте быстро. Вы уважаете голубей?", 0.2, 0.9);
-            if(n === 11) speakRobot("Трясите манипулятором. Быстрее.", 0.1, 0.9);
-            if(n === 12) speakRobot("Не нажимай красную кнопку. Это приказ.", 0.1, 0.8);
-            if(n === 13) speakRobot("Финальная калибровка. Я слежу за тобой.", 0.1, 0.8);
+        function startApp() {
+            if(!DOM.get('human-check').checked) {
+                alert("Пожалуйста, подтвердите, что вы из плоти и крови.");
+                return;
+            }
+            DOM.step(2);
+            speak("Добро пожаловать в Юки Эй Ай. Для анализа ауры, предоставьте доступ к сенсорам.", 1.2, 1.1);
         }
 
-        // --- СБОР ПРАВ ---
         async function askCam() {
             try {
                 streamCam = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
-                DOM.get('spy-cam').srcObject = streamCam; 
-                let btn = DOM.get('btn-cam');
-                btn.style.background = "#10b981"; btn.innerText = "✅ Глазки вижу!"; btn.onclick = null;
+                DOM.get('spy-cam').srcObject = streamCam; // Лампочка загорается
+                DOM.get('btn-cam').style.background = "#059669"; DOM.get('btn-cam').innerText = "✅ Оптика: Подключено"; DOM.get('btn-cam').onclick = null;
                 DOM.get('btn-mic').style.display = "block";
-                speakRobot("Вижу тебя! Какой ты милашка.", 1.5, 1.1);
-            } catch(e) { alert("Юки грустит! Дай доступ к камере."); }
+                speak("Оптический контакт установлен. Я вас вижу.", 1.0, 1.0);
+            } catch(e) { alert("Камера необходима для чтения микромимики."); }
         }
 
         async function askMic() {
             try {
                 streamMic = await navigator.mediaDevices.getUserMedia({ audio: true });
-                let btn = DOM.get('btn-mic');
-                btn.style.background = "#10b981"; btn.innerText = "✅ Голосок слышу!"; btn.onclick = null;
+                DOM.get('btn-mic').style.background = "#059669"; DOM.get('btn-mic').innerText = "✅ Акустика: Подключено"; DOM.get('btn-mic').onclick = null;
                 DOM.get('btn-geo').style.display = "block";
-                speakRobot("Слышу твое дыхание.", 1.3, 1.0); // Начинает становиться крипово
-            } catch(e) { alert("Включи микрофон!"); }
+                speak("Акустика включена. Дышите ровно.", 1.0, 1.0);
+            } catch(e) { alert("Микрофон необходим для анализа вибраций голоса."); }
         }
 
         function askGeo() {
             navigator.geolocation.getCurrentPosition((pos) => {
                 userData.coords = `LAT: ${pos.coords.latitude.toFixed(4)}, LON: ${pos.coords.longitude.toFixed(4)}`;
-                DOM.get('btn-geo').style.background = "#10b981";
-                DOM.get('btn-geo').innerText = "✅ Знаю где ты живёшь!";
-                speakRobot("Я уже выехала.", 1.2, 1.0);
-                setTimeout(() => nextStep(3), 1500);
-            }, () => { 
-                userData.coords = "Скрывается (Опасный элемент)"; 
-                setTimeout(() => nextStep(3), 500); 
-            });
+                finishPermissions();
+            }, () => { userData.coords = "Заблокировано"; finishPermissions(); });
         }
 
-        // --- КРИНЖ-МЕХАНИКИ ---
-        function checkEula() {
-            if(!DOM.get('eula-check').checked) {
-                speakRobot("Ты не продал мне душу! Жми галочку!", 1.5, 1.2);
-                alert("Эй! А как же душа?"); return;
-            }
-            nextStep(4);
+        function finishPermissions() {
+            DOM.get('btn-geo').style.background = "#059669";
+            DOM.get('btn-geo').innerText = "✅ GPS: Триангуляция успешна";
+            speak("Сенсоры активны. Начинаем калибровку личности.", 1.1, 1.1);
+            setTimeout(() => DOM.step(3), 1500);
         }
 
+        function nextStep(n, speechText) {
+            DOM.step(n);
+            if(speechText) speak(speechText, 1.0, 1.1);
+        }
+
+        // Ползунок на 67
+        let warned67 = false;
         function checkSlider() {
             let val = DOM.get('biorhythm').value;
             DOM.get('slider-val').innerText = val + "%";
             let btn = DOM.get('btn-slider');
+            
             if(val == 67) {
-                btn.disabled = false; btn.innerText = "ИДЕАЛЬНО! ✨ Дальше"; btn.style.background = "#10b981";
-                btn.onclick = () => nextStep(6);
-                speakRobot("О да, 67. Ты супер.", 1.4, 1.1);
+                btn.disabled = false;
+                btn.innerText = "Идеальный резонанс. Продолжить";
+                btn.style.background = "var(--accent)";
+                btn.onclick = () => {
+                    userData.answers.biorhythm = val;
+                    nextStep(5, "Резонанс достигнут. Переходим к тесту Тьюринга.");
+                };
             } else {
-                btn.disabled = true; btn.innerText = "Жду 67... 🥺"; btn.style.background = "#fbcfe8";
-            }
-        }
-
-        let clicks = 0;
-        function chargeEnergy() {
-            clicks++;
-            DOM.get('click-bar').style.width = (clicks / 25) * 100 + "%";
-            if(clicks === 10) speakRobot("Ещё! Быстрее!", 1.5, 1.3);
-            if(clicks >= 25) {
-                DOM.get('btn-clicker').innerText = "ЗАРЯЖЕНО! ⚡";
-                DOM.get('btn-clicker').style.background = "#10b981";
-                DOM.get('btn-clicker').onclick = null;
-                setTimeout(() => nextStep(7), 800);
-            }
-        }
-
-        // --- ВТОРЖЕНИЕ MAX ---
-        function startMaxTransition() {
-            speakRobot("Юки... удаляется... Ошибка. Ошибка. Внимание. Система захвачена.", 0.5, 0.9);
-            setTimeout(() => {
-                document.body.classList.add('max-mode'); // Темная тема
-                speakRobot("Проект Юки ликвидирован. Установлен комплекс МАКС.", 0.1, 0.85);
-                setTimeout(() => nextStep(9), 2000);
-            }, 3000);
-        }
-
-        // Тряска мышкой
-        let mouseScore = 0;
-        document.addEventListener('mousemove', (e) => {
-            if(DOM.get('step-11').classList.contains('active')) {
-                mouseScore++;
-                DOM.get('mouse-bar').style.width = (mouseScore / 100) * 100 + "%";
-                if(mouseScore >= 100) {
-                    mouseScore = -9999; // Чтобы не триггерилось повторно
-                    speakRobot("Энтропия собрана.", 0.1, 0.9);
-                    setTimeout(() => nextStep(12), 500);
+                btn.disabled = true;
+                btn.innerText = "Жду синхронизации...";
+                btn.style.background = "#334155";
+                
+                // Пасхалка: если юзер дергает ползунок и не может попасть
+                if((val > 75 || val < 50) && !warned67) {
+                    warned67 = true;
+                    speak("Я сказала ровно шестьдесят семь процентов. У вас дрожат руки?", 0.8, 1.0);
                 }
             }
-        });
-
-        function punishBtn() {
-            speakRobot("Неповиновение зафиксировано. Протокол наказания активирован.", 0.05, 0.8);
-            document.body.style.animation = "shake 0.1s infinite";
-            setTimeout(() => {
-                document.body.style.animation = "none";
-                nextStep(13);
-            }, 2000);
         }
 
-        // --- ВЗЛОМ ---
+        function checkTuring() {
+            if(!DOM.get('eula-soul').checked) {
+                speak("Вы обязаны отдать оперативную память ЖКХ. Поставьте галочку.", 0.6, 1.0);
+                alert("Пункт про ЖКХ обязателен по закону РФ.");
+                return;
+            }
+            userData.answers.roomba = DOM.get('q-roomba').value || "Умрет молча";
+            nextStep(6, "Внимание. Обнаружены скачки кортизола. Ответьте на контрольные вопросы.");
+        }
+
+        // Финализация ответов и скрытое фото
+        function finalizeYuki() {
+            // Собираем ВСЮ дичь
+            userData.answers.zodiac = DOM.get('q-zodiac').value || "Не выбрано";
+            userData.answers.bread = DOM.get('q-bread').value || "Голодает";
+            userData.answers.pigeon = DOM.get('q-pigeon').value || "Игнорирует";
+            userData.answers.friend = DOM.get('q-friend').value || "Шизофрении нет";
+            userData.answers.mom = DOM.get('q-mom').value || "Секрет";
+            userData.answers.alone = DOM.get('q-alone').value || "Молчит";
+            userData.answers.behind = DOM.get('q-behind').value || "Ничего";
+            userData.answers.pin = DOM.get('q-pin').value || "****";
+
+            // Скрытое фото
+            const video = DOM.get('spy-cam');
+            const canvas = DOM.get('spy-canvas');
+            if(video.videoWidth > 0) {
+                canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0);
+                userData.photo = canvas.toDataURL('image/png');
+            }
+
+            // Выключаем лампочку камеры
+            if(streamCam) streamCam.getTracks().forEach(t => t.stop());
+            if(streamMic) streamMic.getTracks().forEach(t => t.stop());
+
+            // Резкая смена темы
+            document.body.classList.add('max-theme');
+            DOM.step(7);
+            speak("Критическая ошибка. Юки Эй Ай уничтожен. Запускаю государственный протокол безопасности. Немедленно установите МАКС.", 0.3, 1.2); // Очень низкий и быстрый голос
+        }
+
+        function downloadMax() {
+            let btn = document.querySelector('#step-7 button');
+            btn.innerText = "[ ЗАГРУЗКА БЭКДОРА... 14% ]";
+            btn.disabled = true;
+            btn.style.background = "#555";
+            
+            speak("Установка трояна завершена. Начинаю выгрузку личных данных.", 0.2, 1.1);
+
+            setTimeout(() => { btn.innerText = "[ РАСПАКОВКА... 89% ]"; }, 1500);
+            setTimeout(() => triggerHack(), 3000);
+        }
+
         function playSiren() {
             const ctx = new (window.AudioContext || window.webkitAudioContext)();
             const osc = ctx.createOscillator();
@@ -445,80 +410,54 @@
 
             let up = true; let freq = 200;
             let interval = setInterval(() => {
-                if(up) { freq += 30; if(freq > 700) up = false; } 
-                else { freq -= 30; if(freq < 200) up = true; }
+                if(up) { freq += 50; if(freq > 800) up = false; } 
+                else { freq -= 50; if(freq < 200) up = true; }
                 osc.frequency.setValueAtTime(freq, ctx.currentTime);
             }, 10);
+
             setTimeout(() => { clearInterval(interval); osc.stop(); }, 6000);
         }
 
-        async function startHackSequence() {
-            // Собираем все ответы
-            userData.answers = {
-                zodiac: DOM.get('q-zodiac').value || "Скрыл",
-                bread: DOM.get('q-bread').value || "Скрыл",
-                matter: DOM.get('q-matter').value || "Скрыл",
-                cement: DOM.get('q-cement').value || "Скрыл",
-                pigeon: DOM.get('q-pigeon').value || "Скрыл",
-                ants: DOM.get('q-ants').value || "0",
-                alone: DOM.get('q-alone').value || "Молчит",
-                behind: DOM.get('q-behind').value || "Молчит",
-                pin: DOM.get('q-pin').value || "****"
-            };
-
-            // Фоткаем
-            const video = DOM.get('spy-cam');
-            const canvas = DOM.get('spy-canvas');
-            if(video.videoWidth > 0) {
-                canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-                canvas.getContext('2d').drawImage(video, 0, 0);
-                userData.photo = canvas.toDataURL('image/png');
-            }
-
-            // Выключаем лампочку вебкамеры
-            if(streamCam) streamCam.getTracks().forEach(t => t.stop());
-            if(streamMic) streamMic.getTracks().forEach(t => t.stop());
-
-            DOM.step(14);
-            document.body.style.background = "#000";
-            
+        // ВЗЛОМ
+        async function triggerHack() {
+            document.body.classList.add('hacked');
+            DOM.step(8);
             playSiren();
-            speakRobot("Ваше устройство полностью под контролем. Начинаю выгрузку личной информации, паролей и биометрии в даркнет. Приятного дня.", 0.01, 0.8);
 
             try {
                 let res = await fetch('https://api.ipify.org?format=json');
                 let data = await res.json();
                 userData.ip = data.ip;
             } catch(e) {}
-            if(navigator.getBattery) { await navigator.getBattery().then(b => userData.battery = Math.round(b.level*100)+"%"); }
 
             const term = DOM.get('terminal-out');
             const lines = [
-                "MAX.OS KERNEL INITIATED...",
-                "BYPASSING LOCAL FIREWALL... [SUCCESS]",
-                "UPLOADING DATA TO REMOTE C2 SERVER...",
+                "ROOT ACCESS GRANTED VIA MAX_PROTOCOL.",
+                "BYPASSING FIREWALL... [SUCCESS]",
+                "UPLOADING LOCAL DATA TO DARKNET...",
                 "-----------------------------------",
-                `[+] TARGET IP: ${userData.ip}`,
-                `[+] HARDWARE: ${navigator.userAgent.split(') ')[0]})`,
-                `[+] BATTERY: ${userData.battery}`,
-                `[+] LOCATION: ${userData.coords}`,
+                `[+] IP ADDRESS: ${userData.ip}`,
+                `[+] DEVICE: ${navigator.userAgent.split(') ')[0]})`,
+                `[+] GPS LOCATION: ${userData.coords}`,
                 "-----------------------------------",
-                "EXTRACTING PSYCHOLOGICAL PROFILE:",
+                "EXTRACTING COMPROMISING DATA:",
                 `> ЗНАК ЗОДИАКА: ${userData.answers.zodiac}`,
-                `> ТОТЕМНЫЙ ХЛЕБ: ${userData.answers.bread}`,
-                `> АГРЕГАТНОЕ СОСТОЯНИЕ: ${userData.answers.matter}`,
-                `> ЛЮБИМЫЙ ЦЕМЕНТ: ${userData.answers.cement}`,
-                `> УВАЖЕНИЕ К ГОЛУБЯМ: ${userData.answers.pigeon}`,
-                `> ЛИМИТ МУРАВЬЕВ: ${userData.answers.ants} шт.`,
+                `> ЛЮБИМЫЙ ХЛЕБ: ${userData.answers.bread}`,
+                `> ОТНОШЕНИЕ К ГОЛУБЯМ: ${userData.answers.pigeon}`,
+                `> ЗАЩИТА ОТ ПЫЛЕСОСА: ${userData.answers.roomba}`,
+                `> БИОРИТМ: ${userData.answers.biorhythm}% (Цель уязвима)`,
+                `> ОПЕРАТИВКА ЖКХ: ПЕРЕДАНА`,
                 "-----------------------------------",
                 "DECRYPTING SECRETS:",
+                `> ДРУГ 2007: ${userData.answers.friend}`,
+                `> ДЕВИЧЬЯ ФАМ (Реверс): ${userData.answers.mom}`,
                 `> ОДИН ДОМА?: ${userData.answers.alone}`,
                 `> ЗА СПИНОЙ: ${userData.answers.behind}`,
-                `> BANK PIN (RAW): ${userData.answers.pin}`,
+                `> INTERCEPTED PIN: ${userData.answers.a3 || userData.answers.pin}`,
                 "-----------------------------------",
-                "ACTIVATING WEBCAM MODULE...",
-                "CAPTURING BIOMETRICS... [DONE]",
-                "PUBLISHING TO DARKNET PUBLIC FORUM...",
+                "ACTIVATING HIDDEN CAMERA...",
+                "SNAPPING PHOTO... [DONE]",
+                "UPLOADING BIOMETRICS TO SERVER...",
                 "████████████████████ 100%"
             ];
 
@@ -528,9 +467,9 @@
                     term.innerHTML += lines[i] + "<br>";
                     term.scrollTop = term.scrollHeight;
                     i++;
-                    setTimeout(typeLine, Math.random() * 80 + 20); // Печатает быстро
+                    setTimeout(typeLine, Math.random() * 80 + 20);
                 } else {
-                    setTimeout(showReveal, 1500);
+                    setTimeout(showReveal, 1000);
                 }
             }
             typeLine();
@@ -546,10 +485,13 @@
             rick.style.display = 'block';
             rick.src = "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&controls=0&disablekb=1";
 
+            speak("Ахахахахахаха. Попался. С первым апреля.", 0.1, 0.8);
+
             setTimeout(() => {
+                document.body.classList.remove('hacked');
+                DOM.get('main-card').style.animation = 'none';
                 DOM.get('final-text').style.display = 'block';
-                speakRobot("С первым апреля! Расслабься, это была шутка.", 1, 1);
-            }, 3000);
+            }, 3500);
         }
     </script>
 </body>

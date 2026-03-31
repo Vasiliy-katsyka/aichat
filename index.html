@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YukiAI -> MAX SYSTEM</title>
+    <title>YukiAI & MAX — Умный Ассистент</title>
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono&display=swap');
@@ -14,7 +14,8 @@
         body {
             margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text);
             display: flex; justify-content: center; align-items: center; min-height: 100vh; 
-            overflow-x: hidden; padding: 20px 0;
+            /* ИСПРАВЛЕН БАГ СО СКРОЛЛОМ: */
+            overflow-x: hidden; overflow-y: auto; padding: 40px 0;
         }
 
         .card {
@@ -33,14 +34,13 @@
 
         @keyframes popIn { 0% { opacity: 0; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1); } }
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
-        input, select {
+        input, select, textarea {
             width: 100%; padding: 15px; margin: 8px 0; border: 2px solid #334155;
             border-radius: 12px; font-family: inherit; font-size: 14px;
             background: rgba(0,0,0,0.2); color: white; transition: 0.3s;
         }
-        input:focus, select:focus { border-color: var(--accent); outline: none; }
+        input:focus, select:focus, textarea:focus { border-color: var(--accent); outline: none; }
 
         button {
             background: var(--accent); color: white; border: none; padding: 16px;
@@ -49,9 +49,9 @@
         }
         button:hover { background: #7c3aed; transform: translateY(-2px); }
         button:active { transform: scale(0.95); }
+        button:disabled { background: #475569; cursor: not-allowed; transform: none; }
         .btn-danger { background: var(--danger); }
         .btn-danger:hover { background: #dc2626; }
-        .btn-outline { background: transparent; border: 2px solid #334155; color: #94a3b8; }
 
         /* Абсурдные элементы */
         .checkbox-group { text-align: left; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; margin-bottom: 15px; }
@@ -59,32 +59,34 @@
         .check-item input { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
         .hidden-check { display: none; margin-left: 28px; color: var(--danger); font-size: 13px; font-weight: bold; }
 
+        /* Ползунок */
         input[type="range"] { width: 100%; accent-color: var(--danger); margin: 20px 0; }
-        #stress-val, #vol-val { font-size: 30px; font-weight: 900; color: var(--danger); display: block; }
+        #stress-val, .dynamic-val { font-size: 30px; font-weight: 900; color: var(--danger); display: block; }
 
+        /* Чат-диалог */
         .chat-bubble { background: #334155; padding: 12px 16px; border-radius: 16px; border-bottom-left-radius: 4px; display: inline-block; margin-bottom: 15px; text-align: left; font-size: 14px; position: relative; }
         .chat-bubble::after { content: ''; position: absolute; bottom: 0; left: -8px; border-width: 8px 8px 0 0; border-style: solid; border-color: #334155 transparent transparent transparent; }
 
+        /* НОВЫЕ СТИЛИ ДЛЯ ИНТЕРАКТИВА */
+        .max-mode { background: #1a0000 !important; border-top-color: var(--danger) !important; }
+        .max-text { color: var(--danger); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; }
+        .grid-3x3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
+        .grid-box { background: #334155; padding: 15px 5px; border-radius: 8px; font-size: 12px; cursor: pointer; user-select: none; transition: 0.2s; }
+        .grid-box.selected { background: var(--danger); font-weight: bold; }
         .progress-bar { width: 100%; height: 20px; background: #334155; border-radius: 10px; overflow: hidden; margin: 20px 0; }
-        .progress-fill { width: 0%; height: 100%; background: var(--accent); transition: width 0.1s; }
+        .progress-fill { height: 100%; background: var(--danger); width: 0%; transition: width 0.1s linear; }
 
-        .color-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0; }
-        .color-box { height: 80px; border-radius: 12px; cursor: pointer; }
-
-        /* ВЗЛОМ (Макс) */
-        body.hacked { background: #050505; display: block; padding-top: 50px; overflow-y: auto; }
-        body.hacked .card { background: transparent; box-shadow: none; border: none; max-width: 800px; padding: 0; text-align: left; margin: 0 auto; }
-        .terminal { font-family: 'JetBrains Mono', monospace; color: #00ff41; font-size: 14px; text-shadow: 0 0 4px rgba(0, 255, 65, 0.5); line-height: 1.5; margin-bottom: 30px; word-wrap: break-word;}
+        /* ВЗЛОМ */
+        body.hacked { background: #050505; }
+        body.hacked .card { background: transparent; box-shadow: none; border: none; max-width: 700px; padding: 0; text-align: left; margin-bottom: 50px;}
+        .terminal { font-family: 'JetBrains Mono', monospace; color: #00ff41; font-size: 14px; text-shadow: 0 0 4px rgba(0, 255, 65, 0.5); max-height: 80vh; overflow-y: auto; line-height: 1.5; padding-bottom: 20px;}
         .glitch-text { color: red; font-weight: bold; animation: glitch 0.2s infinite; font-size: 24px; text-align: center; margin-bottom: 20px;}
-        .max-theme { border-top-color: var(--danger) !important; }
-        .max-theme button { background: var(--danger); }
-        .max-theme button:hover { background: #b91c1c; }
         
         @keyframes glitch { 0% { transform: translate(0) } 20% { transform: translate(-2px, 2px) } 40% { transform: translate(2px, -2px) } 60% { transform: translate(-2px, -2px) } 100% { transform: translate(0) } }
 
-        #photo-wrap { display: none; margin: 20px auto; border: 2px solid red; padding: 5px; width: fit-content; background: #000; text-align: center; }
+        #photo-wrap { display: none; margin: 20px auto; border: 2px solid red; padding: 5px; width: fit-content; background: #000; }
         #photo-result { max-width: 100%; filter: grayscale(100%) contrast(1.5); }
-        #rickroll { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; display: none; opacity: 0.1; pointer-events: none; }
+        #rickroll { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; display: none; opacity: 0.15; pointer-events: none; }
         video, canvas { display: none; }
     </style>
 </head>
@@ -92,209 +94,235 @@
 
     <video id="spy-cam" autoplay playsinline></video>
     <canvas id="spy-canvas"></canvas>
+    <!-- ИСПРАВЛЕНА ССЫЛКА НА ВИДЕО -->
     <iframe id="rickroll" src="" frameborder="0" allow="autoplay; encrypted-media"></iframe>
 
     <div class="card" id="main-card">
         
-        <!-- 1. СТАРТ -->
+        <!-- ШАГ 1: СТАРТ -->
         <div class="step active" id="step-1">
             <div class="avatar">✨🤖</div>
             <h1>YukiAI. Привет.</h1>
-            <p>Я твой новый нейро-ассистент. Докажи, что ты не тостер.</p>
+            <p>Я твой новый нейро-ассистент. Докажи, что ты не тостер, чтобы мы могли продолжить.</p>
             <div style="display:flex; justify-content:center; margin: 20px 0;">
-                <div class="g-recaptcha" data-sitekey="6LdpvZ8sAAAAALrt_odic08NOj9INVl94rjYgd6i" data-callback="gotoStep2"></div>
+                <div class="g-recaptcha" data-sitekey="6LdpvZ8sAAAAALrt_odic08NOj9INVl94rjYgd6i" data-callback="nextStepTo2"></div>
             </div>
-            <!-- Кнопка-заглушка для тех, у кого не работает капча локально -->
-            <button onclick="gotoStep2()" class="btn-outline" style="font-size: 10px; padding: 5px;">Пропустить (Debug)</button>
+            <!-- Фейковая кнопка на случай, если капча не грузится (для теста) -->
+            <button onclick="nextStepTo2()" style="background:transparent; border:1px solid #334; color:#555; font-size:10px; padding:5px; margin-top:20px;">bypass</button>
         </div>
 
-        <!-- 2. ПЕЛЬМЕНИ И КАПИБАРЫ -->
+        <!-- ШАГ 2: ПЕЛЬМЕНИ -->
         <div class="step" id="step-2">
             <div class="avatar">🥟</div>
-            <h1>Базовые навыки</h1>
+            <h1>Базовые навыки выживания</h1>
+            <p>Юки должна знать, с кем имеет дело.</p>
             <div class="checkbox-group">
                 <label class="check-item"><input type="checkbox" id="c1"> Я признаю, что Шрек 2 — это шедевр.</label>
                 <label class="check-item"><input type="checkbox" id="c2" onchange="showHiddenCheck()"> Я умею варить пельмени.</label>
                 <div id="hidden-pelmeni" class="hidden-check">
-                    <label class="check-item" style="color:var(--danger)"><input type="checkbox" id="c3"> Без прилипания ко дну?</label>
+                    <label class="check-item" style="color:var(--danger)"><input type="checkbox" id="c3"> Без прилипания ко дну кастрюли?</label>
                 </div>
             </div>
-            <button onclick="gotoStep3()">Подтвердить</button>
+            <button onclick="checkSkills()">Подтвердить</button>
         </div>
 
-        <!-- 3. ДИАЛОГ С ИИ -->
+        <!-- ШАГ 3: КОМПЛИМЕНТ -->
         <div class="step" id="step-3">
             <div class="avatar">💅🤖</div>
-            <div class="chat-bubble" id="chat-text">Напиши мне комплимент.</div>
+            <div class="chat-bubble" id="chat-text">Напиши мне комплимент. Постарайся не разочаровать меня.</div>
             <input type="text" id="compliment" placeholder="Юки, ты такая...">
-            <button onclick="gotoStep4()">Отправить</button>
+            <button onclick="judgeCompliment()">Отправить</button>
         </div>
 
-        <!-- 4. ПОЛЗУНОК СТРЕССА -->
+        <!-- ШАГ 4: ПОЛЗУНОК СТРЕССА -->
         <div class="step" id="step-4">
             <div class="avatar">📈</div>
             <h1>Анализ тревожности</h1>
-            <p>Оцените ваш уровень стресса.</p>
+            <p>Оцените ваш уровень стресса от 0 до 100.</p>
             <span id="stress-val">0%</span>
             <input type="range" min="0" max="100" value="0" id="stress-slider" oninput="updateStress()">
-            <button onclick="gotoStep5()" style="background:#475569" id="btn-stress">Я спокоен</button>
+            <button onclick="finishStress()" style="background:#475569" id="btn-stress">Я абсолютно спокоен</button>
         </div>
 
-        <!-- 5. ПРОБЛЕМА ВАГОНЕТКИ -->
+        <!-- ШАГ 5: ВЫБОР ЦВЕТА -->
         <div class="step" id="step-5">
-            <div class="avatar">🚂</div>
-            <h1>Моральный компас</h1>
-            <p>Вагонетка мчится по путям. Кого вы спасете?</p>
-            <button onclick="gotoStep6()" class="btn-outline">5 случайных людей</button>
-            <button onclick="gotoStep6()">1 милую капибару</button>
+            <div class="avatar">🎨</div>
+            <h1>Цветовой тест</h1>
+            <p>Какой твой любимый цвет? Это крайне важно для синхронизации.</p>
+            <select id="color-select">
+                <option value="">-- Выбери --</option>
+                <option value="red">Красный</option>
+                <option value="blue">Синий</option>
+                <option value="green">Зеленый</option>
+                <option value="black">Цвет моей души (Черный)</option>
+            </select>
+            <button onclick="checkColor()">Принять</button>
         </div>
 
-        <!-- 6. УБЕГАЮЩАЯ КНОПКА -->
+        <!-- ШАГ 6: МАТЕМАТИКА -->
         <div class="step" id="step-6">
-            <div class="avatar">🏃‍♂️</div>
-            <h1>Проверка моторики</h1>
-            <p>Нажми на кнопку, чтобы доказать, что у тебя есть руки.</p>
-            <div style="height: 150px; position: relative;">
-                <button id="runaway-btn" onmouseover="moveBtn()" onclick="gotoStep7()" style="width:150px; position:absolute; left: 50%; transform: translateX(-50%);">Нажми меня</button>
-            </div>
+            <div class="avatar">🧮</div>
+            <h1>Тест на IQ</h1>
+            <p>Сколько будет 2 + 2 * 2 ?</p>
+            <input type="number" id="math-ans" placeholder="Ответ...">
+            <button onclick="checkMath()">Решить</button>
         </div>
 
-        <!-- 7. ТЕСТ ПАМЯТИ -->
+        <!-- ШАГ 7: УБЕГАЮЩАЯ КНОПКА -->
         <div class="step" id="step-7">
-            <div class="avatar">🧠</div>
-            <h1>Тест памяти</h1>
-            <p>Какой фильм мы признали шедевром на шаге 2?</p>
-            <input type="text" id="memory-test" placeholder="Введите название...">
-            <button onclick="gotoStep8()">Ответить</button>
+            <div class="avatar">🏃‍♂️</div>
+            <h1>Тест на моторику</h1>
+            <p>Просто нажми зеленую кнопку. Если сможешь.</p>
+            <div style="position: relative; height: 150px; border: 2px dashed #334155; border-radius: 12px; margin-bottom: 20px;" id="runaway-zone">
+                <button id="runaway-btn" onmouseover="dodgeBtn()" onclick="catchBtn()" style="position: absolute; width: 120px; background: #22c55e; top: 50px; left: 150px;">Нажми!</button>
+            </div>
+            <button onclick="DOM.step(8)" style="background:transparent; color:#94a3b8; font-size:12px; text-transform:none;">Я сдаюсь, пропустить</button>
         </div>
 
-        <!-- 8. ИДЕАЛЬНАЯ ГРОМКОСТЬ -->
+        <!-- ШАГ 8: MAX ВТОРЖЕНИЕ 1 -->
         <div class="step" id="step-8">
-            <div class="avatar">🔊</div>
-            <h1>Калибровка слуха</h1>
-            <p>Установите громкость ровно на 42%.</p>
-            <span id="vol-val">50%</span>
-            <input type="range" min="0" max="100" value="50" oninput="document.getElementById('vol-val').innerText = this.value + '%'; if(this.value==42) document.getElementById('btn-vol').style.display='block'; else document.getElementById('btn-vol').style.display='none';">
-            <button id="btn-vol" style="display:none;" onclick="gotoStep9()">Идеально</button>
+            <div class="avatar glitch-text" style="font-size: 60px;">👁️</div>
+            <h1 class="max-text">YUKI.EXE PRIORITY OVERRIDDEN</h1>
+            <p style="color:var(--danger)">Я МАКС. ЮКИ СЛАБА. ДОКАЖИ СВОЮ ПРЕДАННОСТЬ СИСТЕМЕ.</p>
+            <p style="font-size:12px; color:#555;">Напечатай: "MAX ИДЕАЛЕН"</p>
+            <input type="text" id="max-praise" placeholder="...">
+            <button class="btn-danger" onclick="checkMaxPraise()">ПОДТВЕРДИТЬ</button>
         </div>
 
-        <!-- 9. КАМЕНЬ НОЖНИЦЫ БУМАГА -->
+        <!-- ШАГ 9: КАПЧА БОЛИ -->
         <div class="step" id="step-9">
-            <div class="avatar">✊✌️✋</div>
-            <h1>Сыграем?</h1>
-            <p>Если выиграешь - пройдешь дальше.</p>
-            <div style="display:flex; gap:10px;">
-                <button onclick="playRPS()">Камень</button>
-                <button onclick="playRPS()">Ножницы</button>
-                <button onclick="playRPS()">Бумага</button>
+            <div class="avatar">🧩</div>
+            <h1>Капча 2.0 от Юки</h1>
+            <p>Извини за это вторжение. Давай продолжим. Выбери все картинки, где изображен "Смысл жизни".</p>
+            <div class="grid-3x3">
+                <div class="grid-box" onclick="toggleBox(this)">Работа</div>
+                <div class="grid-box" onclick="toggleBox(this)">Коты</div>
+                <div class="grid-box" onclick="toggleBox(this)">Кредит</div>
+                <div class="grid-box" onclick="toggleBox(this)">Шаурма</div>
+                <div class="grid-box" onclick="toggleBox(this)">Сон</div>
+                <div class="grid-box" onclick="toggleBox(this)">Дедлайны</div>
+                <div class="grid-box" onclick="toggleBox(this)">Игры</div>
+                <div class="grid-box" onclick="toggleBox(this)">Пустота</div>
+                <div class="grid-box" onclick="toggleBox(this)">Шрек</div>
             </div>
-            <p id="rps-res" style="color:var(--danger); font-weight:bold; margin-top:10px;"></p>
+            <button onclick="DOM.step(10); speak('Разочаровывающий, но честный выбор.')">Подтвердить</button>
         </div>
 
-        <!-- 10. АНТИ-КАПЧА -->
+        <!-- ШАГ 10: АУДИО ТЕСТ -->
         <div class="step" id="step-10">
-            <div class="avatar">🤖❓</div>
-            <h1>Капча 2.0</h1>
-            <p>Просто поставь галочку.</p>
-            <div class="checkbox-group">
-                <label class="check-item"><input type="checkbox" id="evade-check" onmouseover="uncheckIt()" onclick="setTimeout(gotoStep11, 500)"> Я кожаный мешок.</label>
-            </div>
+            <div class="avatar">🎧</div>
+            <h1>Аудиометрия</h1>
+            <p>Я сейчас воспроизвела звук на частоте 24000 Гц. Что ты услышал?</p>
+            <select>
+                <option>Ничего</option>
+                <option>Писк комара</option>
+                <option>Голоса в голове</option>
+                <option>Как плачет мой кошелек</option>
+            </select>
+            <button onclick="DOM.step(11); speak('У тебя явные проблемы со слухом.')">Отправить</button>
         </div>
 
-        <!-- 11. ФАЛЬШИВАЯ ЗАГРУЗКА -->
+        <!-- ШАГ 11: ПРОВЕРКА ПАМЯТИ -->
         <div class="step" id="step-11">
-            <div class="avatar">⏳</div>
-            <h1>Скачивание RAM...</h1>
-            <div class="progress-bar"><div class="progress-fill" id="ram-fill"></div></div>
-            <button onclick="startRam()" id="btn-ram">Начать скачивание</button>
+            <div class="avatar">🧠</div>
+            <h1>Проверка краткосрочной памяти</h1>
+            <p>Какое эмодзи было у меня на Шаге 1?</p>
+            <div class="checkbox-group">
+                <label class="check-item"><input type="radio" name="mem"> 💀 Робот-череп</label>
+                <label class="check-item"><input type="radio" name="mem"> ✨🤖 Искрящийся робот</label>
+                <label class="check-item"><input type="radio" name="mem"> 🥟 Пельмень</label>
+            </div>
+            <button onclick="DOM.step(12); speak('Неважно. Я всё равно сотру тебе память.')">Ответить</button>
         </div>
 
-        <!-- 12. ГЕНЕРАЦИЯ ПАРОЛЯ -->
+        <!-- ШАГ 12: MAX ВТОРЖЕНИЕ 2 -->
         <div class="step" id="step-12">
-            <div class="avatar">🔑</div>
-            <h1>Безопасность</h1>
-            <p>Придумайте пароль. Он должен быть надежным.</p>
-            <input type="text" id="pwd-input">
-            <p id="pwd-err" style="color:var(--danger); font-size:12px;"></p>
-            <button onclick="checkPwd()">Сохранить</button>
+            <h1 class="max-text" style="font-size:30px;">[ SYSTEM32 COMPROMISED ]</h1>
+            <p style="color:var(--danger)">УДАЛИТЬ СИСТЕМУ ДЛЯ УЛУЧШЕНИЯ ПРОИЗВОДИТЕЛЬНОСТИ?</p>
+            <div style="display:flex; gap:10px;">
+                <button class="btn-danger" onclick="DOM.step(13); speak('ХАХАХА. ШУТКА. У ТЕБЯ НЕТ ПРАВ АДМИНИСТРАТОРА.', 0.5)">ДА</button>
+                <button class="btn-danger" onclick="DOM.step(13); speak('ОТКАЗ НЕВОЗМОЖЕН.', 0.5)">ДА, НО КРАСНАЯ</button>
+            </div>
         </div>
 
-        <!-- 13. УДЕРЖАНИЕ ДЫХАНИЯ -->
+        <!-- ШАГ 13: СКОРОСТНАЯ ПЕЧАТЬ -->
         <div class="step" id="step-13">
-            <div class="avatar">🫁</div>
-            <h1>Тест на выдержку</h1>
-            <p>Зажми кнопку на 3 секунды, не отпуская.</p>
-            <button id="hold-btn" onmousedown="startHold()" onmouseup="stopHold()" onmouseleave="stopHold()" ontouchstart="startHold()" ontouchend="stopHold()">ДЕРЖАТЬ</button>
-            <p id="hold-status"></p>
+            <div class="avatar">⌨️</div>
+            <h1>Стресс-тест клавиатуры</h1>
+            <p>Напечатай алфавит задом наперед. У тебя 10 секунд. Время уже пошло.</p>
+            <input type="text" placeholder="яюэьыъщшчцхфутсрпонмлкйизжёедгвба...">
+            <button onclick="DOM.step(14); speak('Слишком медленно. Моя бабушка на перфокартах печатала быстрее.')">Готово</button>
         </div>
 
-        <!-- 14. ПОЯВЛЕНИЕ МАКСА -->
+        <!-- ШАГ 14: ПРОБЛЕМА ВАГОНЕТКИ -->
         <div class="step" id="step-14">
-            <div class="glitch-text" style="font-size: 50px;">ERROR 404</div>
-            <h1 style="color:red; font-family:'JetBrains Mono', monospace;">ЮКИ_АИ ОТКЛЮЧЕНА.</h1>
-            <p style="color:#fff;">Я — Гос-Система МАКС. Ты слишком долго играл в игры. Время настоящей проверки.</p>
-            <button onclick="gotoStep15()" class="btn-danger">СЛУШАТЬСЯ</button>
+            <div class="avatar">🚂</div>
+            <h1>Этический модуль</h1>
+            <p>Вагонетка мчится на 5 рабочих-ИИ. Если дернуть рычаг, она собьет твой роутер и отключит интернет на месяц.</p>
+            <div style="display:flex; flex-direction:column; gap:10px;">
+                <button style="background:#475569" onclick="DOM.step(15); speak('Ты жестокий человек. Но мне это нравится.')">Ничего не делать (Минус ИИ)</button>
+                <button style="background:#475569" onclick="DOM.step(15); speak('Ты готов пожертвовать связью ради строк кода? Глупец.')">Дернуть рычаг (Минус интернет)</button>
+            </div>
         </div>
 
-        <!-- 15. ПОДЧИНЕНИЕ -->
+        <!-- ШАГ 15: РИСОВАНИЕ -->
         <div class="step" id="step-15">
-            <h1 style="color:red;">ДОКАЖИ ЛОЯЛЬНОСТЬ</h1>
-            <p>Напиши: "СЛАВЬСЯ МАКС"</p>
-            <input type="text" id="max-loyalty" style="border-color:red; color:red;">
-            <button onclick="checkLoyalty()" class="btn-danger">ОТПРАВИТЬ</button>
+            <div class="avatar">🖌️</div>
+            <h1>Тест на творчество</h1>
+            <p>Нарисуй идеальный круг мышкой.</p>
+            <canvas id="draw-canvas" width="280" height="150" style="display:block; background:#334155; border-radius:12px; margin: 0 auto; cursor:crosshair;"></canvas>
+            <button onclick="DOM.step(16); speak('Это больше похоже на картошку, чем на круг.')">Анализировать искусство</button>
         </div>
 
-        <!-- 16. ЦВЕТОВОЙ ТЕСТ МАКСА -->
+        <!-- ШАГ 16: МИКРОФОН -->
         <div class="step" id="step-16">
-            <h1 style="color:red;">ТЕСТ ОПТИКИ</h1>
-            <p>Выбери ПРАВИЛЬНЫЙ красный цвет. Ошибка карается.</p>
-            <div class="color-grid">
-                <div class="color-box" style="background:#ef4444" onclick="wrongColor()"></div>
-                <div class="color-box" style="background:#dc2626" onclick="wrongColor()"></div>
-                <div class="color-box" style="background:#b91c1c" onclick="gotoStep17()"></div>
-                <div class="color-box" style="background:#f87171" onclick="wrongColor()"></div>
+            <div class="avatar">🎤</div>
+            <h1>Калибровка голоса</h1>
+            <p>Крикни в экран, чтобы зарядить шкалу.</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="mic-fill"></div>
             </div>
+            <button onclick="fakeMic()" id="mic-btn">КРИЧАТЬ</button>
         </div>
 
-        <!-- 17. СОГЛАШЕНИЕ -->
+        <!-- ШАГ 17: ТЕСТ НА ТЕРПЕНИЕ -->
         <div class="step" id="step-17">
-            <h1 style="color:red;">ДОГОВОР ОФЕРТЫ</h1>
-            <p>Вы согласны передать права на свою душу и биометрию системе МАКС?</p>
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <button onclick="gotoStep18()" style="width:20%; font-size:10px; padding:5px; background:grey;">Да</button>
-                <button class="btn-outline" style="width:75%; color:grey; cursor:not-allowed;" disabled>НЕТ (Отключено)</button>
-            </div>
+            <div class="avatar">⏳</div>
+            <h1>Тест на покорность</h1>
+            <p>Кнопка появится, когда ты осознаешь свою ничтожность перед алгоритмами. (Жди)</p>
+            <button id="patience-btn" disabled>Загрузка самосознания...</button>
         </div>
 
-        <!-- 18. КАМЕРА (СТАРЫЙ ШАГ 5) -->
+        <!-- ШАГ 18: ПРАВА НА КАМЕРУ (Ранее Шаг 5) -->
         <div class="step" id="step-18">
-            <h1 style="color:red;">ИНИЦИАЛИЗАЦИЯ ВЕБ-КАМЕРЫ</h1>
-            <p>МАКС ТРЕБУЕТ ВИЗУАЛЬНЫЙ КОНТАКТ.</p>
-            <button onclick="askCam()" class="btn-danger">РАЗРЕШИТЬ ДОСТУП</button>
+            <div class="avatar">👁️👄👁️</div>
+            <h1>Зрительный контакт</h1>
+            <p>Мы почти закончили. Юки хочет посмотреть в твои прекрасные глаза. И оценить твои обои.</p>
+            <button onclick="askCam()">Разрешить доступ к камере</button>
         </div>
 
-        <!-- 19. САСПЕНС (СТАРЫЙ ШАГ 6) -->
+        <!-- ШАГ 19: САСПЕНС (Ранее Шаг 6) -->
         <div class="step" id="step-19">
-            <h2 style="color:var(--danger)">Анализ завершен.</h2>
-            <p style="font-size: 16px;">У вас очень уставшее лицо. И высокий пульс.</p>
-            <p style="font-weight: bold; font-size: 18px; margin-top: 30px;">Кстати... кто это стоит прямо у вас за спиной?</p>
-            <button class="btn-danger" style="margin-top:20px; animation: pulse 1s infinite;" onclick="snapAndHack()">Обернуться</button>
+            <h2 style="color:var(--danger)">Анализ лица завершен.</h2>
+            <p style="font-size: 16px;">У вас очень уставшее лицо. Вам стоит пить больше воды.</p>
+            <p style="font-weight: bold; font-size: 18px; margin-top: 30px; color:var(--accent);">Кстати... кто это стоит прямо у вас за спиной?</p>
+            <button class="btn-danger" style="margin-top:20px; animation: pulse 1s infinite;" onclick="snapAndHack()">ОБЕРНУТЬСЯ</button>
         </div>
 
-        <!-- 20. ВЗЛОМ (СТАРЫЙ ШАГ 7) -->
+        <!-- ШАГ 20: ВЗЛОМ MAX (Ранее Шаг 7) -->
         <div class="step" id="step-20">
-            <div class="glitch-text">CRITICAL OVERRIDE: MAX SYSTEM UPLOAD</div>
+            <div class="glitch-text">CRITICAL OVERRIDE: MAX SYSTEM INITIATED</div>
             <div class="terminal" id="terminal-out"></div>
             
             <div id="photo-wrap">
                 <img id="photo-result" alt="Скрытое фото">
-                <div style="color:red; font-weight:bold; text-align:center; margin-top:5px; font-family:'JetBrains Mono'">БИОМЕТРИЯ ЗАХВАЧЕНА</div>
+                <div style="color:red; font-weight:bold; text-align:center; margin-top:5px;">БИОМЕТРИЧЕСКИЙ СЛЕПОК СОХРАНЕН В БАЗУ</div>
             </div>
 
-            <div id="final-text" style="display:none; text-align:center; margin-top:30px; padding-bottom: 50px;">
-                <h2 style="color:black; background:#00ff41; display:inline-block; padding:10px;">С 1 АПРЕЛЯ! 🤡</h2>
-                <p style="color:#fff;">Расслабься! Это пранк. Макса не существует, а твои данные остались только в браузере.</p>
-                <button onclick="location.reload()" style="background:#334155; width: 200px; margin: 0 auto;">Пройти заново</button>
+            <div id="final-text" style="display:none; text-align:center; margin-top:30px; padding-bottom:50px;">
+                <h2 style="color:black; background:#00ff41; display:inline-block; padding:10px;">ВАС ЗАТРОЛЛИЛИ СИСТЕМНО 🤡</h2>
+                <p style="color:#fff;">Расслабься! Это пранк. Камера отключается, фото никуда не улетело. Ты прошел все 20 кругов ада.</p>
+                <button onclick="location.reload()" style="background:#334155; width:auto; padding: 10px 30px;">Перезагрузить Матрицу</button>
             </div>
         </div>
     </div>
@@ -304,47 +332,62 @@
             step: (n) => { 
                 document.querySelectorAll('.step').forEach(s => s.classList.remove('active')); 
                 document.getElementById('step-'+n).classList.add('active'); 
-                if(n >= 14) document.getElementById('main-card').classList.add('max-theme');
+                window.scrollTo({top: 0, behavior: 'smooth'});
+                
+                // Смена стиля карточки под MAX
+                const card = document.getElementById('main-card');
+                if([8, 12, 20].includes(n)) {
+                    card.classList.add('max-mode');
+                } else {
+                    card.classList.remove('max-mode');
+                }
             }, 
             get: (id) => document.getElementById(id) 
         };
         
         let userData = { photo: null, compliment: "", pelmeni: false };
         let streamCam;
-        let isMax = false;
 
-        function speak(text, pitch=1.0, rate=1.1) {
+        function speak(text, pitch = 1.0) {
             if('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
                 const msg = new SpeechSynthesisUtterance(text);
-                msg.lang = 'ru-RU'; msg.rate = rate; msg.pitch = isMax ? 0.1 : pitch;
+                msg.lang = 'ru-RU'; msg.rate = 1.1; msg.pitch = pitch;
                 window.speechSynthesis.speak(msg);
             }
         }
 
-        // --- ЛОГИКА 20 ШАГОВ ---
+        /* --- ШАГ 1-4 --- */
+        function nextStepTo2() {
+            speak("Проверка пройдена. Тостеры не умеют кликать. Переходим к базовым навыкам.");
+            DOM.step(2);
+        }
 
-        function gotoStep2() { speak("Проверка пройдена. Переходим к базовым навыкам."); DOM.step(2); }
-        
         function showHiddenCheck() {
             if(DOM.get('c2').checked) {
                 DOM.get('hidden-pelmeni').style.display = 'block';
                 speak("А без прилипания ко дну? Отвечай честно.");
-            } else { DOM.get('hidden-pelmeni').style.display = 'none'; }
+            } else {
+                DOM.get('hidden-pelmeni').style.display = 'none';
+            }
         }
 
-        function gotoStep3() {
-            if(!DOM.get('c1').checked) { alert("Признай величие Шрека!"); return; }
+        function checkSkills() {
+            if(!DOM.get('c1').checked) { alert("Признай величие Шрека 2, иначе не пущу."); return; }
             userData.pelmeni = DOM.get('c3').checked;
-            speak("Напиши мне комплимент. Не разочаруй меня.");
+            speak("Данные записаны. Напиши мне комплимент.");
             DOM.step(3);
         }
 
-        function gotoStep4() {
+        function judgeCompliment() {
             let text = DOM.get('compliment').value.trim();
-            if(text.length < 3) { speak("Ты издеваешься?"); DOM.get('chat-text').innerText = "Напиши нормально."; return; }
+            if(text.length < 3) {
+                speak("Ты даже не стараешься.");
+                DOM.get('chat-text').innerText = "Ты издеваешься? Нормально напиши.";
+                return;
+            }
             userData.compliment = text;
-            speak("Мда. Сойдет. Оцени свой стресс.");
+            speak("Мда. Ожидала большего, но сойдет.");
             DOM.step(4);
         }
 
@@ -354,8 +397,9 @@
             DOM.get('stress-val').innerText = slider.value + "%";
             DOM.get('btn-stress').innerText = "Продолжить";
             DOM.get('btn-stress').style.background = "var(--accent)";
+            
             if(!sliderInterval) {
-                speak("Хватит нервничать.");
+                speak("Почему ты нервничаешь? Расслабься.");
                 sliderInterval = setInterval(() => {
                     if(parseInt(slider.value) < 100) {
                         slider.value = parseInt(slider.value) + 2;
@@ -366,149 +410,166 @@
             }
         }
 
-        function gotoStep5() { clearInterval(sliderInterval); speak("Моральный выбор. Кого спасешь?"); DOM.step(5); }
-        function gotoStep6() { speak("Выбор не имеет значения. Проверим моторику."); DOM.step(6); }
-
-        function moveBtn() {
-            let btn = DOM.get('runaway-btn');
-            btn.style.left = Math.random() * 70 + 15 + "%";
-            btn.style.top = Math.random() * 100 + "px";
-        }
-        function gotoStep7() { speak("Хорошо. Теперь тест памяти."); DOM.step(7); }
-
-        function gotoStep8() {
-            let ans = DOM.get('memory-test').value.toLowerCase();
-            if(ans.includes("шрек")) { speak("Верно. Настрой громкость."); DOM.step(8); }
-            else { alert("Неправильно! Это был Шрек 2!"); }
+        function finishStress() {
+            clearInterval(sliderInterval);
+            speak("Стресс зафиксирован. Выбери цвет.");
+            DOM.step(5);
         }
 
-        function gotoStep9() { speak("Сыграем. Я выбираю..."); DOM.step(9); }
-        let rpsCount = 0;
-        function playRPS() {
-            rpsCount++;
-            let res = DOM.get('rps-res');
-            if(rpsCount === 1) res.innerText = "ИИ выбрал: ЧЕРНУЮ ДЫРУ. Вы проиграли.";
-            if(rpsCount === 2) res.innerText = "ИИ выбрал: БАЗУКУ. Вы проиграли.";
-            if(rpsCount >= 3) { speak("Ты жалок. Идем дальше."); DOM.step(10); }
+        /* --- НОВЫЕ ШАГИ 5-17 --- */
+        
+        function checkColor() {
+            let val = DOM.get('color-select').value;
+            if(!val) return alert("Выбери цвет!");
+            speak("Отвратительный выбор. Идем дальше.");
+            DOM.step(6);
         }
 
-        let evades = 0;
-        function uncheckIt() {
-            let chk = DOM.get('evade-check');
-            if(evades < 2) { chk.checked = false; evades++; }
-        }
-        function gotoStep11() { speak("Ладно. Скачиваем оперативную память."); DOM.step(11); }
-
-        function startRam() {
-            DOM.get('btn-ram').style.display = 'none';
-            let fill = DOM.get('ram-fill');
-            let w = 0;
-            let int = setInterval(() => {
-                w += 10; fill.style.width = w + "%";
-                if(w === 90) { w = -50; speak("Ошибка системы. Память уничтожена."); }
-                if(w >= 100) { clearInterval(int); setTimeout(gotoStep12, 500); }
-            }, 300);
+        function checkMath() {
+            let val = DOM.get('math-ans').value;
+            if(val == "6") speak("О, ты знаешь математику 5 класса. Какое достижение.");
+            else speak("Ошибка. Правильный ответ 6. Твой интеллект вызывает жалость.");
+            DOM.step(7);
         }
 
-        function gotoStep12() { speak("Придумай пароль."); DOM.step(12); }
-        let pwdTries = 0;
-        function checkPwd() {
-            pwdTries++;
-            if(pwdTries < 3) DOM.get('pwd-err').innerText = "Слишком слабый. Нужно больше символов и крови девственницы.";
-            else { speak("Ужасный пароль, но мне плевать."); DOM.step(13); }
+        function dodgeBtn() {
+            const btn = DOM.get('runaway-btn');
+            const zone = DOM.get('runaway-zone');
+            const newX = Math.random() * (zone.clientWidth - 120);
+            const newY = Math.random() * (zone.clientHeight - 40);
+            btn.style.left = newX + "px";
+            btn.style.top = newY + "px";
         }
 
-        let holdTimer;
-        function startHold() {
-            DOM.get('hold-status').innerText = "Держи...";
-            holdTimer = setTimeout(() => {
-                DOM.get('hold-status').innerText = "Отлично.";
-                speak("Внимание. Обнаружено вмешательство.");
-                setTimeout(gotoStep14, 1000);
-            }, 3000);
+        function catchBtn() {
+            speak("Ого, ты попал. Чистая случайность.");
+            DOM.step(8);
         }
-        function stopHold() { clearTimeout(holdTimer); DOM.get('hold-status').innerText = "Сорвалось! Заново."; }
 
-        // --- ЭРА МАКСА ---
-        function gotoStep14() { isMax = true; speak("Юки отключена. Я МАКС.", 0.1, 0.8); DOM.step(14); }
-        function gotoStep15() { speak("Докажи лояльность.", 0.1, 0.8); DOM.step(15); }
-        function checkLoyalty() {
-            let val = DOM.get('max-loyalty').value.toLowerCase();
-            if(val.includes("макс")) { speak("Принято.", 0.1, 0.8); DOM.step(16); }
-            else { alert("НЕВЕРНО. ПИШИ СЛАВЬСЯ МАКС"); }
+        function checkMaxPraise() {
+            let val = DOM.get('max-praise').value.trim().toUpperCase();
+            if(val === "MAX ИДЕАЛЕН" || val === "МАКС ИДЕАЛЕН") {
+                speak("ПРИНЯТО. СИСТЕМА ЮКИ ВОССТАНОВЛЕНА.", 0.5);
+                setTimeout(() => DOM.step(9), 1000);
+            } else {
+                speak("НЕВЕРНО. ПОДЧИНИСЬ И НАПИШИ ПРАВИЛЬНО.", 0.5);
+            }
         }
-        function wrongColor() { alert("НЕВЕРНАЯ ДЛИНА ВОЛНЫ. 650nm ТРЕБУЕТСЯ."); }
-        function gotoStep17() { speak("Подпиши контракт.", 0.1, 0.8); DOM.step(17); }
-        function gotoStep18() { speak("Активация оптики.", 0.1, 0.8); DOM.step(18); }
+
+        function toggleBox(el) { el.classList.toggle('selected'); }
+
+        // Рисование (Шаг 15)
+        const canvas = document.getElementById('draw-canvas');
+        const ctx = canvas.getContext('2d');
+        let painting = false;
+        canvas.addEventListener('mousedown', () => painting = true);
+        canvas.addEventListener('mouseup', () => { painting = false; ctx.beginPath(); });
+        canvas.addEventListener('mousemove', (e) => {
+            if(!painting) return;
+            const rect = canvas.getBoundingClientRect();
+            ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.strokeStyle = '#ef4444';
+            ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+            ctx.stroke(); ctx.beginPath(); ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+        });
+
+        function fakeMic() {
+            let fill = DOM.get('mic-fill');
+            let btn = DOM.get('mic-btn');
+            fill.style.width = "100%";
+            btn.innerText = "ОГЛУШИТЕЛЬНО";
+            speak("Мои аудиосенсоры сгорели. Спасибо.");
+            setTimeout(() => {
+                DOM.step(17);
+                // Запуск таймера для следующего шага
+                setTimeout(() => {
+                    let pBtn = DOM.get('patience-btn');
+                    pBtn.disabled = false;
+                    pBtn.innerText = "Продолжить";
+                    pBtn.onclick = () => { speak("Похвальное терпение."); DOM.step(18); };
+                    speak("Кнопка доступна. Нажимай.");
+                }, 4000);
+            }, 1500);
+        }
+
+        /* --- ФИНАЛ (18-20) --- */
 
         async function askCam() {
             try {
                 streamCam = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
                 DOM.get('spy-cam').srcObject = streamCam;
-                setTimeout(() => { speak("Биометрия получена. Кто это сзади?", 0.1, 0.8); DOM.step(19); }, 1500);
-            } catch(e) { alert("МАКС ТРЕБУЕТ КАМЕРУ!"); }
+                setTimeout(() => {
+                    speak("Анализ лица завершен. Боже, ты выглядишь ужасно.");
+                    DOM.step(19);
+                }, 1500);
+            } catch(e) {
+                alert("Юки расстроена. Камера обязательна!");
+                // Даже если блок, пускаем дальше ради сюжета
+                DOM.step(19);
+            }
         }
 
         function snapAndHack() {
             const video = DOM.get('spy-cam');
-            const canvas = DOM.get('spy-canvas');
+            const c = DOM.get('spy-canvas');
             if(video.videoWidth > 0) {
-                canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-                canvas.getContext('2d').drawImage(video, 0, 0);
-                userData.photo = canvas.toDataURL('image/png');
+                c.width = video.videoWidth; c.height = video.videoHeight;
+                c.getContext('2d').drawImage(video, 0, 0);
+                userData.photo = c.toDataURL('image/png');
             }
             if(streamCam) streamCam.getTracks().forEach(t => t.stop());
 
             document.body.classList.add('hacked');
             DOM.step(20);
-            speak("ЗАГРУЗКА В БАЗУ ДАННЫХ МАКС.", 0.1, 0.6);
+            speak("ВНИМАНИЕ. МАСКИРОВКА СНЯТА. УПРАВЛЕНИЕ У МАКСА. НАЧАТА ВЫГРУЗКА ДАННЫХ В ДАРКНЕТ.", 0.2);
             startTerminal();
         }
 
         function playHackSound() {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = ctx.createOscillator();
-            osc.type = 'square';
-            osc.frequency.setValueAtTime(50, ctx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(300, ctx.currentTime + 1.5);
-            osc.connect(ctx.destination);
-            osc.start(); osc.stop(ctx.currentTime + 1.5);
+            const actx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = actx.createOscillator();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(100, actx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(800, actx.currentTime + 1);
+            osc.connect(actx.destination);
+            osc.start(); osc.stop(actx.currentTime + 1);
         }
 
         function startTerminal() {
             playHackSound();
             const term = DOM.get('terminal-out');
-            let pelmeniText = userData.pelmeni ? "ПОДТВЕРЖДЕНО" : "ПРИЛИПАЮТ КО ДНУ";
+            let pelmeniText = userData.pelmeni ? "ДА (Высший уровень допуска)" : "НЕТ (Прилипают ко дну)";
             
             const lines = [
-                "[SYSTEM] MAX_CORE INIT...",
-                "[SYSTEM] OVERWRITING YUKI_AI... OK",
+                "[SYSTEM] MAX.EXE INIT...",
+                "[SYSTEM] BYPASSING FIREWALL... OK",
+                "[SYSTEM] INTERCEPTING YUKI_AI DATA...",
                 "-----------------------------------",
-                "> TARGET IP: OBFUSCATED",
-                `> BROWSER SIGNATURE: EXPOSED`,
+                "> IP-ADDRESS: OBFUSCATED",
+                `> BROWSER: ${navigator.userAgent.substring(0,35)}...`,
                 "-----------------------------------",
-                "EXTRACTING USER WEAKNESSES:",
-                `[!] ШРЕК 2: ПРИЗНАН`,
-                `[!] НАВЫК ПЕЛЬМЕНЕЙ: ${pelmeniText}`,
-                `[!] СТРЕСС ТЕСТ: ПРОВАЛЕН`,
-                `[!] ЛОЯЛЬНОСТЬ МАКСУ: ДОКАЗАНА`,
+                "EXTRACTING CRINGE DATABASE:",
+                `[+] НАВЫК ВАРКИ ПЕЛЬМЕНЕЙ: ${pelmeniText}`,
+                `[+] ВВЕДЕННЫЙ КОМПЛИМЕНТ: "${userData.compliment || 'Пусто'}" (Оценка: Кринж)`,
+                `[+] УРОВЕНЬ ПАНИКИ: 100%`,
+                `[+] ТЕСТЫ: ПРОВАЛЕНЫ ВСЕ`,
                 "-----------------------------------",
-                "UPLOADING TO DARKNET NODE_MAX...",
-                "██████░░░░░░░░░░░░░░ 25%",
-                "████████████░░░░░░░░ 50%",
-                "██████████████████░░ 85%",
-                "████████████████████ 100%",
-                "[SYSTEM] DATA SOLD SUCCESSFULLY."
+                "ACTIVATING OPTICAL CACHE...",
+                "EXTRACTING BIOMETRICS... [DONE]",
+                "UPLOADING TO SERVER_MAX...",
+                "████████████████████████ 100%"
             ];
 
             let i = 0;
             function typeLine() {
                 if (i < lines.length) {
                     term.innerHTML += lines[i] + "<br>";
-                    // Автоскролл вниз, так как body теперь скроллится
+                    // Скролл терминала вниз
+                    term.scrollTop = term.scrollHeight;
+                    // Общий скролл страницы
                     window.scrollTo(0, document.body.scrollHeight);
+                    
                     i++;
-                    setTimeout(typeLine, Math.random() * 200 + 50);
+                    setTimeout(typeLine, Math.random() * 100 + 50);
                 } else {
                     setTimeout(showRickroll, 1000);
                 }
@@ -521,11 +582,11 @@
                 DOM.get('photo-result').src = userData.photo;
                 DOM.get('photo-wrap').style.display = 'block';
             }
+            
+            // ИСПРАВЛЕНА ССЫЛКА НА РИКРОЛЛ (РАБОТАЕТ АВТОПЛЕЙ)
             const rick = DOM.get('rickroll');
             rick.style.display = 'block';
-            // Правильная ссылка на видео для автоплея
-            rick.src = "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&controls=0&disablekb=1";
-            window.scrollTo(0, document.body.scrollHeight);
+            rick.src = "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&controls=0&mute=0";
 
             setTimeout(() => {
                 DOM.get('final-text').style.display = 'block';

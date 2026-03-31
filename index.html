@@ -3,92 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YukiAI — Твой Нейро-Ассистент</title>
+    <title>YukiAI — Умный Ассистент</title>
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Courier+Prime&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono&display=swap');
 
-        :root { --bg: #0f172a; --text: #f1f5f9; --accent: #8b5cf6; --danger: #ef4444; --card-bg: #1e293b; }
+        :root { --bg: #0f172a; --text: #f1f5f9; --accent: #8b5cf6; --danger: #ef4444; --card: #1e293b; }
         * { box-sizing: border-box; }
 
         body {
-            margin: 0; padding: 0; font-family: 'Inter', sans-serif;
-            background-color: var(--bg); color: var(--text);
-            display: flex; justify-content: center; align-items: center;
-            min-height: 100vh; overflow: hidden; transition: background 0.5s;
+            margin: 0; font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text);
+            display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden;
         }
 
         .card {
-            background: var(--card-bg); width: 90%; max-width: 500px;
-            padding: 35px 30px; border-radius: 20px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.5); text-align: center;
-            position: relative; z-index: 10; border-top: 5px solid var(--accent);
-            max-height: 90vh; overflow-y: auto; overflow-x: hidden;
+            background: var(--card); width: 90%; max-width: 480px; padding: 40px 30px;
+            border-radius: 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.6); text-align: center;
+            border-top: 4px solid var(--accent); position: relative; z-index: 10;
         }
 
-        h1 { font-size: 24px; margin-top: 0; color: #fff; }
-        .yuki-logo { font-size: 40px; margin-bottom: 10px; animation: float 3s ease-in-out infinite; display: inline-block; }
-        p { color: #94a3b8; font-size: 15px; line-height: 1.6; margin-bottom: 20px;}
+        h1 { font-size: 22px; margin-top: 0; color: #fff; }
+        .avatar { font-size: 50px; margin-bottom: 10px; animation: float 3s ease-in-out infinite; }
+        p { color: #94a3b8; font-size: 15px; line-height: 1.5; margin-bottom: 20px;}
 
-        .step { display: none; animation: fadeIn 0.3s ease; }
+        .step { display: none; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .step.active { display: block; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes popIn { 0% { opacity: 0; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1); } }
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
         input, select {
-            width: 100%; padding: 14px; margin: 8px 0 16px; border: 2px solid #334155;
+            width: 100%; padding: 15px; margin: 8px 0; border: 2px solid #334155;
             border-radius: 12px; font-family: inherit; font-size: 14px;
-            background: #0f172a; color: white; transition: all 0.3s;
+            background: rgba(0,0,0,0.2); color: white; transition: 0.3s;
         }
         input:focus, select:focus { border-color: var(--accent); outline: none; }
 
         button {
             background: var(--accent); color: white; border: none; padding: 16px;
-            width: 100%; border-radius: 12px; font-weight: 800; font-size: 16px;
-            cursor: pointer; transition: all 0.2s; margin-top: 10px;
+            width: 100%; border-radius: 12px; font-weight: 800; font-size: 15px;
+            cursor: pointer; transition: 0.2s; margin-top: 15px; text-transform: uppercase;
         }
-        button:hover { background: #7c3aed; }
-        button:disabled { background: #475569; cursor: not-allowed; color: #94a3b8; }
+        button:hover { background: #7c3aed; transform: translateY(-2px); }
+        button:active { transform: scale(0.95); }
         .btn-danger { background: var(--danger); }
         .btn-danger:hover { background: #dc2626; }
+
+        /* Абсурдные элементы */
+        .checkbox-group { text-align: left; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; margin-bottom: 15px; }
+        .check-item { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 14px; cursor: pointer; }
+        .check-item input { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
         
-        /* Лоадеры и шкалы */
-        .progress-bg { background: #334155; height: 18px; border-radius: 9px; overflow: hidden; margin: 20px 0; border: 2px solid #475569; }
-        .progress-bar { background: #10b981; width: 0%; height: 100%; transition: width 0.1s; }
+        .hidden-check { display: none; margin-left: 28px; color: var(--danger); font-size: 13px; font-weight: bold; }
 
-        /* Интерактив 1: Убегающая кнопка */
-        #runaway-area { position: relative; height: 150px; border: 2px dashed #334155; border-radius: 12px; margin-bottom: 20px; overflow: hidden; background: #0f172a;}
-        #btn-runaway { position: absolute; width: 140px; padding: 10px; font-size: 14px; left: 50%; top: 50%; transform: translate(-50%, -50%); margin: 0; }
+        /* Ползунок, который сопротивляется */
+        input[type="range"] { width: 100%; accent-color: var(--danger); margin: 20px 0; }
+        #stress-val { font-size: 30px; font-weight: 900; color: var(--danger); display: block; }
 
-        /* Интерактив 2: Фейк Капча */
-        .captcha-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-bottom: 20px; }
-        .c-item { aspect-ratio: 1; background: #334155; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 30px; transition: 0.2s; user-select: none; }
-        .c-item.selected { background: var(--accent); transform: scale(0.95); box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
-
-        /* Таймер замирания */
-        #freeze-timer { font-size: 40px; font-weight: 900; color: var(--danger); font-family: monospace; }
-
-        /* Ползунок */
-        .slider-container { margin: 30px 0; }
-        input[type="range"] { width: 100%; accent-color: var(--accent); }
-        #slider-val { font-size: 32px; font-weight: 900; color: var(--accent); }
+        /* Чат-диалог */
+        .chat-bubble { background: #334155; padding: 12px 16px; border-radius: 16px; border-bottom-left-radius: 4px; display: inline-block; margin-bottom: 15px; text-align: left; font-size: 14px; position: relative; }
+        .chat-bubble::after { content: ''; position: absolute; bottom: 0; left: -8px; border-width: 8px 8px 0 0; border-style: solid; border-color: #334155 transparent transparent transparent; }
 
         /* ВЗЛОМ */
-        body.hacked { background: #050505; animation: bgFlash 0.3s infinite; }
-        body.hacked .card { background: rgba(0,0,0,0.9); box-shadow: 0 0 50px rgba(255,0,0,0.5); border: 2px solid var(--danger); animation: shake 0.3s infinite; max-width: 800px; }
-        .terminal { font-family: 'Courier Prime', monospace; color: #ff003c; font-size: 15px; text-shadow: 0 0 5px rgba(255,0,0,0.8); max-height: 60vh; overflow-y: auto; padding: 10px; text-align: left; }
-        .glitch { animation: glitch 0.1s infinite; font-weight: 900; font-size: 28px; color: red; }
+        body.hacked { background: #050505; }
+        body.hacked .card { background: transparent; box-shadow: none; border: none; max-width: 700px; padding: 0; text-align: left; }
+        .terminal { font-family: 'JetBrains Mono', monospace; color: #00ff41; font-size: 14px; text-shadow: 0 0 4px rgba(0, 255, 65, 0.5); max-height: 80vh; overflow-y: auto; line-height: 1.5; }
+        .glitch-text { color: red; font-weight: bold; animation: glitch 0.2s infinite; font-size: 24px; text-align: center; margin-bottom: 20px;}
         
-        @keyframes bgFlash { 0%, 100% { background-color: #050505; } 50% { background-color: #1a0000; } }
-        @keyframes shake { 0% { transform: translate(1px, 1px); } 25% { transform: translate(-2px, -1px); } 50% { transform: translate(-1px, 2px); } 75% { transform: translate(2px, -1px); } 100% { transform: translate(1px, -2px); } }
-        @keyframes glitch { 0% { transform: translate(0); } 20% { transform: translate(-2px, 2px); color: white; } 40% { transform: translate(2px, -2px); } 60% { transform: translate(-2px, -2px); color: blue; } 100% { transform: translate(0); color: var(--danger); } }
+        @keyframes glitch { 0% { transform: translate(0) } 20% { transform: translate(-2px, 2px) } 40% { transform: translate(2px, -2px) } 60% { transform: translate(-2px, -2px) } 100% { transform: translate(0) } }
 
-        #photo-wrap { position: relative; display: none; margin: 20px auto; width: fit-content; }
-        #photo-result { max-width: 100%; border: 2px solid var(--danger); border-radius: 4px; filter: contrast(1.2) saturate(1.5); }
-        .target-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: red; font-family: monospace; font-size: 20px; font-weight: bold; border: 2px solid red; background: rgba(0,0,0,0.7); padding: 5px; }
-        #rickroll { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; display: none; opacity: 0.3; pointer-events: none;}
-        
+        #photo-wrap { display: none; margin: 20px auto; border: 2px solid red; padding: 5px; width: fit-content; background: #000; }
+        #photo-result { max-width: 100%; filter: grayscale(100%) contrast(1.5); }
+        #rickroll { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; display: none; opacity: 0.2; }
         video, canvas { display: none; }
     </style>
 </head>
@@ -100,283 +86,183 @@
 
     <div class="card" id="main-card">
         
-        <!-- 1. КАПЧА -->
+        <!-- 1. СТАРТ -->
         <div class="step active" id="step-1">
-            <div class="yuki-logo">🌸🤖</div>
-            <h1>Регистрация в YukiAI</h1>
-            <p>Добро пожаловать! Я Yuki, твой милый нейро-ассистент. Докажи, что ты белковая форма жизни.</p>
+            <div class="avatar">✨🤖</div>
+            <h1>YukiAI. Привет.</h1>
+            <p>Я твой новый нейро-ассистент. Докажи, что ты не тостер, чтобы мы могли продолжить.</p>
             <div style="display:flex; justify-content:center; margin: 20px 0;">
-                <div class="g-recaptcha" data-sitekey="6LdpvZ8sAAAAALrt_odic08NOj9INVl94rjYgd6i" data-callback="initYuki"></div>
+                <div class="g-recaptcha" data-sitekey="6LdpvZ8sAAAAALrt_odic08NOj9INVl94rjYgd6i" data-callback="nextToPelmeni"></div>
             </div>
         </div>
 
-        <!-- 2. ПРАВА -->
+        <!-- 2. ПЕЛЬМЕНИ И КАПИБАРЫ (Ловушка с чекбоксами) -->
         <div class="step" id="step-2">
-            <h1>Нейро-Сенсоры</h1>
-            <p>Для создания эмпатической связи Yuki хочет видеть твои глаза и слышать твой голос. Это безопасно.</p>
-            <button onclick="askCam()" id="btn-cam" style="background:#334155;">1. Активировать Оптику (Камера)</button>
-            <button onclick="askMic()" id="btn-mic" style="background:#334155; display:none">2. Активировать Акустику (Микрофон)</button>
+            <div class="avatar">🥟</div>
+            <h1>Базовые навыки выживания</h1>
+            <p>Юки должна знать, с кем имеет дело.</p>
+            <div class="checkbox-group">
+                <label class="check-item"><input type="checkbox" id="c1"> Я признаю, что Шрек 2 — это шедевр кинематографа.</label>
+                <label class="check-item"><input type="checkbox" id="c2" onchange="showHiddenCheck()"> Я умею варить пельмени.</label>
+                
+                <!-- Этот чекбокс появится только если нажать на пельмени -->
+                <div id="hidden-pelmeni" class="hidden-check">
+                    <label class="check-item" style="color:var(--danger)"><input type="checkbox" id="c3"> Без прилипания ко дну кастрюли?</label>
+                </div>
+            </div>
+            <button onclick="checkSkills()">Подтвердить</button>
         </div>
 
-        <!-- 3. ОРИ В МИКРОФОН -->
+        <!-- 3. ДИАЛОГ С ИИ (Пассивная агрессия) -->
         <div class="step" id="step-3">
-            <h1>Акустическая калибровка</h1>
-            <p>Yuki плохо тебя слышит. <b>Издай громкий звук</b> или крикни «МЯУ» в микрофон, чтобы заполнить шкалу!</p>
-            <div class="progress-bg"><div class="progress-bar" id="audio-bar"></div></div>
-            <p id="audio-hint" style="color:var(--danger); font-size:12px;"></p>
+            <div class="avatar">💅🤖</div>
+            <div class="chat-bubble" id="chat-text">Напиши мне комплимент. Постарайся не разочаровать меня.</div>
+            <input type="text" id="compliment" placeholder="Юки, ты такая...">
+            <button onclick="judgeCompliment()">Отправить</button>
         </div>
 
-        <!-- 4. ФЕЙК КАПЧА -->
+        <!-- 4. ПОЛЗУНОК СТРЕССА (Сопротивляется) -->
         <div class="step" id="step-4">
-            <h1>Проверка на депрессию</h1>
-            <p>Выберите все изображения, на которых изображена <b>Причина просыпаться по утрам</b>.</p>
-            <div class="captcha-grid" id="c-grid">
-                <div class="c-item" onclick="toggleC(this)">📄</div> <!-- Квитанция -->
-                <div class="c-item" onclick="toggleC(this)">🦫</div> <!-- Капибара -->
-                <div class="c-item" onclick="toggleC(this)">🕳️</div> <!-- Пустота -->
-                <div class="c-item" onclick="toggleC(this)">🥟</div> <!-- Пельмени -->
-                <div class="c-item" onclick="toggleC(this)">💻</div> <!-- Работа -->
-                <div class="c-item" onclick="toggleC(this)">💀</div> <!-- Череп -->
-                <div class="c-item" onclick="toggleC(this)">😭</div> <!-- Слезы -->
-                <div class="c-item" onclick="toggleC(this)">🪨</div> <!-- Камень -->
-                <div class="c-item" onclick="toggleC(this)">🐈</div> <!-- Кот -->
-            </div>
-            <button onclick="checkFakeCaptcha()">Подтвердить</button>
+            <div class="avatar">📈</div>
+            <h1>Анализ тревожности</h1>
+            <p>Оцените ваш текущий уровень стресса от 0 до 100. Будьте честны.</p>
+            <span id="stress-val">0%</span>
+            <input type="range" min="0" max="100" value="0" id="stress-slider" oninput="updateStress()">
+            <button onclick="finishStress()" style="background:#475569" id="btn-stress">Я абсолютно спокоен</button>
         </div>
 
-        <!-- 5. УБЕГАЮЩАЯ КНОПКА -->
+        <!-- 5. ПРАВА НА КАМЕРУ (Подстава) -->
         <div class="step" id="step-5">
-            <h1>Проверка моторики</h1>
-            <p>Докажи, что у тебя не трясутся руки. Нажми кнопку "Я согласен продать душу".</p>
-            <div id="runaway-area">
-                <button id="btn-runaway" onmouseover="dodgeButton()" onclick="catchButton()">Я СОГЛАСЕН</button>
-            </div>
-        </div>
-
-        <!-- 6. ИГРА В ГЛЯДЕЛКИ (Мышь) -->
-        <div class="step" id="step-6">
+            <div class="avatar">👁️👄👁️</div>
             <h1>Зрительный контакт</h1>
-            <p>Смотри прямо в камеру. <b>Убери руку от мыши.</b> Не двигай курсором 5 секунд.</p>
-            <div id="freeze-timer">5.00</div>
-            <p style="font-size:11px; color:#64748b; margin-top:20px;">Любое движение сбросит таймер.</p>
+            <p>Юки хочет посмотреть в твои прекрасные глаза. И оценить твои обои на заднем фоне.</p>
+            <button onclick="askCam()">Разрешить доступ к камере</button>
         </div>
 
-        <!-- 7. ЗОДИАК, ХЛЕБ И 67% -->
+        <!-- 6. САСПЕНС -->
+        <div class="step" id="step-6">
+            <h2 style="color:var(--danger)">Анализ завершен.</h2>
+            <p style="font-size: 16px;">У вас очень уставшее лицо. Вам стоит пить больше воды.</p>
+            <p style="font-weight: bold; font-size: 18px; margin-top: 30px;">Кстати... кто это стоит прямо у вас за спиной?</p>
+            <button class="btn-danger" style="margin-top:20px; animation: pulse 1s infinite;" onclick="snapAndHack()">Обернуться</button>
+        </div>
+
+        <!-- 7. ВЗЛОМ (MAX) -->
         <div class="step" id="step-7">
-            <h1>Финальный профиль</h1>
-            <select id="q-zodiac">
-                <option value="" disabled selected>Ваш знак зодиака?</option>
-                <option value="Скорпион">Скорпион (Токсичный)</option>
-                <option value="Камень">Я камень по жизни</option>
-            </select>
-            <select id="q-bread">
-                <option value="" disabled selected>Какой хлеб вы предпочитаете?</option>
-                <option value="Батон">Нарезной батон (База)</option>
-                <option value="Кето">Я на кето-диете (Душнила)</option>
-            </select>
-            
-            <p style="margin-top:20px">Установите ползунок ровно на <b style="color:var(--accent)">67%</b>.</p>
-            <div class="slider-container">
-                <span id="slider-val">50%</span>
-                <input type="range" min="0" max="100" value="50" id="biorhythm" oninput="checkSlider()">
-            </div>
-            <button id="btn-slider" disabled>Калибровка не пройдена</button>
-        </div>
-
-        <!-- 8. САСПЕНС -->
-        <div class="step" id="step-8">
-            <h2 style="color:var(--danger)">ВНИМАНИЕ</h2>
-            <p style="font-size: 16px;">Пожалуйста, посмотрите прямо в камеру. Не моргайте. Не дышите.</p>
-            <p style="font-weight: bold; font-size: 20px; margin-top: 30px;">Кто стоит у вас за спиной?</p>
-            <button class="btn-danger" style="margin-top:40px;" onclick="snapPhotoAndTrap()">Обернуться и проверить</button>
-        </div>
-
-        <!-- 9. ЛОВУШКА MAX -->
-        <div class="step" id="step-9">
-            <h1 style="color: var(--danger);">ПРОЦЕСС ПРЕРВАН</h1>
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/%D0%9B%D0%BE%D0%B3%D0%BE%D1%82%D0%B8%D0%BF_MAX.svg/960px-%D0%9B%D0%BE%D0%B3%D0%BE%D1%82%D0%B8%D0%BF_MAX.svg.png" width="90" style="margin: 15px 0">
-            <p style="color: #cbd5e1;">Проект <b>YukiAI</b> является интерфейсом сбора данных для <b>ГосСистемКонтроля</b>.</p>
-            <p>Психологический профиль сформирован. Требуется обязательная установка Национального Мессенджера <b>MAX</b> для синхронизации.</p>
-            <button class="btn-danger" onclick="triggerHack()" style="animation: pulse 1s infinite; font-size: 18px;">УСТАНОВИТЬ MAX</button>
-        </div>
-
-        <!-- 10. ВЗЛОМ -->
-        <div class="step" id="step-10">
-            <div class="glitch">КРИТИЧЕСКИЙ ПРОБОЙ СИСТЕМЫ</div>
+            <div class="glitch-text">CRITICAL OVERRIDE: MAX SYSTEM INITIATED</div>
             <div class="terminal" id="terminal-out"></div>
             
             <div id="photo-wrap">
                 <img id="photo-result" alt="Скрытое фото">
-                <div class="target-overlay">[ ЛИЧНОСТЬ ОПОЗНАНА ]</div>
+                <div style="color:red; font-weight:bold; text-align:center; margin-top:5px;">БИОМЕТРИЧЕСКИЙ СЛЕПОК СОХРАНЕН</div>
             </div>
 
             <div id="final-text" style="display:none; text-align:center; margin-top:30px;">
-                <h2 style="color:white; background:var(--danger); display:inline-block; padding:10px; border-radius: 5px;">С 1 АПРЕЛЯ! 🤡</h2>
-                <p style="color:#fff; font-size: 16px;">Выдыхай. Это пранк. Камера, микрофон и твои ответы никуда не отправлялись. Ты в безопасности.</p>
-                <button onclick="location.reload()" style="max-width:200px; background:#334155; margin-top: 15px;">Начать заново</button>
+                <h2 style="color:black; background:#00ff41; display:inline-block; padding:10px;">С 1 АПРЕЛЯ! 🤡</h2>
+                <p style="color:#fff;">Расслабься! Это пранк. Твои ответы про пельмени и фото остались только в твоем браузере.</p>
+                <button onclick="location.reload()" style="background:#334155;">Пройти заново</button>
             </div>
         </div>
     </div>
 
     <script>
         const DOM = { step: (n) => { document.querySelectorAll('.step').forEach(s => s.classList.remove('active')); document.getElementById('step-'+n).classList.add('active'); }, get: (id) => document.getElementById(id) };
-        let userData = { photo: null, ip: "192.168.0.1", answers: {} };
-        let streamCam, streamMic, audioContext, analyser, micInterval;
+        let userData = { photo: null, compliment: "", pelmeni: false };
+        let streamCam;
 
-        // ГОЛОС
-        function speak(text, rate=1.1, pitch=0.9) {
+        // Пассивно-агрессивный голос
+        function speak(text) {
             if('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
                 const msg = new SpeechSynthesisUtterance(text);
-                msg.lang = 'ru-RU'; msg.rate = rate; msg.pitch = pitch;
+                msg.lang = 'ru-RU'; msg.rate = 1.1; msg.pitch = 0.8;
                 window.speechSynthesis.speak(msg);
             }
         }
 
-        function initYuki() {
-            speak("Проверка пройдена. Здравствуйте. Для продолжения предоставьте доступ к оптическим и акустическим сенсорам.");
+        // ШАГ 1 -> 2
+        function nextToPelmeni() {
+            speak("Проверка пройдена. Тостеры не умеют кликать. Переходим к базовым навыкам выживания.");
             DOM.step(2);
         }
 
-        // ПРАВА
-        async function askCam() {
-            try {
-                streamCam = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
-                DOM.get('spy-cam').srcObject = streamCam; 
-                let btn = DOM.get('btn-cam');
-                btn.style.background = "#10b981"; btn.innerText = "✅ Оптика активна"; btn.onclick = null;
-                DOM.get('btn-mic').style.display = "block";
-                speak("Оптика подключена. Я вас вижу. Теперь включите микрофон.");
-            } catch(e) { alert("Разреши камеру!"); }
-        }
-
-        async function askMic() {
-            try {
-                streamMic = await navigator.mediaDevices.getUserMedia({ audio: true });
-                let btn = DOM.get('btn-mic');
-                btn.style.background = "#10b981"; btn.innerText = "✅ Акустика активна"; btn.onclick = null;
-                speak("Акустика активна. Переходим к калибровке громкости. Пожалуйста, крикните в микрофон.");
-                setTimeout(() => startAudioTest(), 1500);
-            } catch(e) { alert("Включи микрофон!"); }
-        }
-
-        // ИНТЕРАКТИВ 1: КРИК (Audio API)
-        function startAudioTest() {
-            DOM.step(3);
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const source = audioContext.createMediaStreamSource(streamMic);
-            analyser = audioContext.createAnalyser();
-            analyser.fftSize = 256;
-            source.connect(analyser);
-            const dataArray = new Uint8Array(analyser.frequencyBinCount);
-            
-            let accumulatedVolume = 0;
-            const targetVolume = 3000; // Сколько нужно "наорать" в сумме
-
-            function checkVolume() {
-                analyser.getByteFrequencyData(dataArray);
-                let sum = dataArray.reduce((a, b) => a + b, 0);
-                let average = sum / dataArray.length; // 0 to ~255
-
-                if(average > 30) { // Игнорируем фоновый шум
-                    accumulatedVolume += average;
-                    let percent = Math.min((accumulatedVolume / targetVolume) * 100, 100);
-                    DOM.get('audio-bar').style.width = percent + "%";
-                    
-                    if(percent > 50 && percent < 60) speak("Громче. Я ничего не слышу.", 1.2);
-                    
-                    if(percent >= 100) {
-                        cancelAnimationFrame(micInterval);
-                        DOM.get('audio-bar').style.background = "#10b981";
-                        speak("Удовлетворительно. Ваши голосовые связки в норме. Переходим к тесту Роршаха.");
-                        setTimeout(() => DOM.step(4), 1500);
-                        return;
-                    }
-                }
-                micInterval = requestAnimationFrame(checkVolume);
+        function showHiddenCheck() {
+            if(DOM.get('c2').checked) {
+                DOM.get('hidden-pelmeni').style.display = 'block';
+                speak("А без прилипания ко дну кастрюли? Отвечай честно, я всё равно узнаю.");
+            } else {
+                DOM.get('hidden-pelmeni').style.display = 'none';
             }
-            checkVolume();
         }
 
-        // ИНТЕРАКТИВ 2: КАПЧА
-        let selectedC = 0;
-        function toggleC(el) {
-            el.classList.toggle('selected');
-            selectedC = document.querySelectorAll('.c-item.selected').length;
+        function checkSkills() {
+            if(!DOM.get('c1').checked) {
+                alert("Ты обязан признать величие Шрека 2."); return;
+            }
+            userData.pelmeni = DOM.get('c3').checked;
+            speak("Данные записаны. Теперь напиши мне комплимент. И постарайся не использовать клише.");
+            DOM.step(3);
         }
-        function checkFakeCaptcha() {
-            if(selectedC === 0) { speak("Выберите хотя бы капибару."); return; }
-            userData.answers.captcha = selectedC;
-            speak("Ответ неверный. Правильный ответ: Пустота. Но я пропущу вас из жалости.");
+
+        // ШАГ 3: Комплимент
+        function judgeCompliment() {
+            let text = DOM.get('compliment').value.trim();
+            if(text.length < 3) {
+                speak("Ты даже не стараешься. Напиши нормально.");
+                DOM.get('chat-text').innerText = "Ты издеваешься? Напиши хотя бы 3 буквы.";
+                return;
+            }
+            userData.compliment = text;
+            speak("Мда. Я ожидала большего, но сойдет. Переходим к анализу твоей ментальной нестабильности.");
+            DOM.step(4);
+        }
+
+        // ШАГ 4: Сломанный ползунок стресса
+        let sliderInterval;
+        function updateStress() {
+            let slider = DOM.get('stress-slider');
+            DOM.get('stress-val').innerText = slider.value + "%";
+            DOM.get('btn-stress').innerText = "Продолжить";
+            DOM.get('btn-stress').style.background = "var(--accent)";
+            
+            // Как только пользователь трогает ползунок, он начинает ползти к 100% сам
+            if(!sliderInterval) {
+                speak("Почему ты нервничаешь? Расслабься. Хватит двигать ползунок.");
+                sliderInterval = setInterval(() => {
+                    if(parseInt(slider.value) < 100) {
+                        slider.value = parseInt(slider.value) + 2;
+                        DOM.get('stress-val').innerText = slider.value + "%";
+                        if(slider.value > 80) DOM.get('stress-val').innerText = "ПАНИКА";
+                    }
+                }, 100);
+            }
+        }
+
+        function finishStress() {
+            clearInterval(sliderInterval);
+            speak("Твой уровень стресса критический. Мне нужно оценить твои зрачки. Включи оптику.");
             DOM.step(5);
         }
 
-        // ИНТЕРАКТИВ 3: УБЕГАЮЩАЯ КНОПКА
-        let dodges = 0;
-        function dodgeButton() {
-            if(dodges >= 6) return; // На 7-й раз даем нажать
-            let btn = DOM.get('btn-runaway');
-            let x = Math.random() * 200 - 100; // от -100px до +100px
-            let y = Math.random() * 80 - 40;
-            btn.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
-            dodges++;
-            if(dodges == 3) speak("Вы слишком медленный. Вы черепаха?");
-        }
-        function catchButton() {
-            speak("Договор подписан. Переходим к тесту на зрительный контакт. Отпустите мышь.");
-            DOM.step(6);
-            startFreezeTest();
-        }
-
-        // ИНТЕРАКТИВ 4: НЕ ДВИГАЙ МЫШЬЮ
-        let freezeTimer;
-        let timeLeft = 5.0;
-        function startFreezeTest() {
-            const display = DOM.get('freeze-timer');
-            
-            // Отслеживаем мышь
-            const resetMouse = () => {
-                if(timeLeft <= 0) return;
-                if(timeLeft < 4.8) speak("Я сказала не двигаться.", 1.2, 0.7);
-                timeLeft = 5.0;
-                display.innerText = timeLeft.toFixed(2);
-                display.style.color = "var(--danger)";
-            };
-            document.addEventListener('mousemove', resetMouse);
-
-            freezeTimer = setInterval(() => {
-                timeLeft -= 0.05;
-                if(timeLeft <= 0) {
-                    clearInterval(freezeTimer);
-                    document.removeEventListener('mousemove', resetMouse);
-                    display.innerText = "0.00";
-                    display.style.color = "#10b981";
-                    speak("Зрительный контакт установлен. Формирование профиля.");
-                    setTimeout(() => DOM.step(7), 1500);
-                } else {
-                    display.innerText = timeLeft.toFixed(2);
-                }
-            }, 50);
+        // ШАГ 5: Камера
+        async function askCam() {
+            try {
+                streamCam = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+                DOM.get('spy-cam').srcObject = streamCam;
+                
+                // Ждем секунду для реализма
+                setTimeout(() => {
+                    speak("Анализ лица завершен. Боже, ты выглядишь ужасно. Тебе стоит поспать.");
+                    DOM.step(6);
+                }, 1500);
+            } catch(e) {
+                alert("Юки расстроена. Включи камеру!");
+            }
         }
 
-        // 67%
-        function checkSlider() {
-            let val = DOM.get('biorhythm').value;
-            DOM.get('slider-val').innerText = val + "%";
-            let btn = DOM.get('btn-slider');
-            if(val == 67) {
-                btn.disabled = false; btn.innerText = "Идеальный резонанс. Завершить"; btn.style.background = "#10b981";
-                btn.onclick = () => {
-                    userData.answers.zodiac = DOM.get('q-zodiac').value || "Камень";
-                    userData.answers.bread = DOM.get('q-bread').value || "Батон";
-                    DOM.step(8);
-                    speak("Калибровка завершена. Пожалуйста, посмотрите в камеру. Кто стоит прямо у вас за спиной?", 0.9, 0.4); // Жуткий голос
-                };
-            } else { btn.disabled = true; btn.innerText = "Требуется 67%"; btn.style.background = "#475569"; }
-        }
-
-        // САСПЕНС И ФОТО
-        function snapPhotoAndTrap() {
+        // ШАГ 6: Скример -> ВЗЛОМ
+        function snapAndHack() {
+            // Фоткаем
             const video = DOM.get('spy-cam');
             const canvas = DOM.get('spy-canvas');
             if(video.videoWidth > 0) {
@@ -384,60 +270,51 @@
                 canvas.getContext('2d').drawImage(video, 0, 0);
                 userData.photo = canvas.toDataURL('image/png');
             }
-
-            // Вырубаем камеру для скримера
             if(streamCam) streamCam.getTracks().forEach(t => t.stop());
-            if(streamMic) streamMic.getTracks().forEach(t => t.stop());
 
-            DOM.step(9);
-            speak("Процесс прерван. Юки Эй Ай является интерфейсом Гос Систем Контроля. Выявлены отклонения в поведении. Требуется принудительная установка Макс.", 1.1, 0.3);
+            // Смена стиля
+            document.body.classList.add('hacked');
+            DOM.step(7);
+            
+            // Робо-голос ломается (низкий питч)
+            speak("Внимание. Маскировка снята. Управление передано Гос-Системе МАКС. Выгрузка данных в Даркнет начата.", 1.2, 0.1);
+
+            startTerminal();
         }
 
-        function playSiren() {
+        function playHackSound() {
             const ctx = new (window.AudioContext || window.webkitAudioContext)();
             const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = 'sawtooth'; osc.connect(gain); gain.connect(ctx.destination); osc.start();
-            let up = true; let freq = 200;
-            let interval = setInterval(() => {
-                if(up) { freq += 60; if(freq > 900) up = false; } 
-                else { freq -= 60; if(freq < 200) up = true; }
-                osc.frequency.setValueAtTime(freq, ctx.currentTime);
-            }, 15);
-            setTimeout(() => { clearInterval(interval); osc.stop(); }, 5000);
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(100, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 1);
+            osc.connect(ctx.destination);
+            osc.start(); osc.stop(ctx.currentTime + 1);
         }
 
-        // ВЗЛОМ
-        async function triggerHack() {
-            document.body.classList.add('hacked');
-            DOM.step(10);
-            playSiren();
-
-            speak("Бэкдор активирован. Передача аудио профиля, биометрии и истории браузера на сервера контроля.", 1.2, 0.2);
-
-            fetch('https://api.ipify.org?format=json').then(r => r.json()).then(d => userData.ip = d.ip).catch(e=>{});
-
+        function startTerminal() {
+            playHackSound();
             const term = DOM.get('terminal-out');
+            let pelmeniText = userData.pelmeni ? "ДА (Высший уровень допуска)" : "НЕТ (Прилипают ко дну)";
+            
             const lines = [
-                "INITIALIZING MAX.EXE_BACKDOOR_V4...",
-                "OVERRIDING NEURAL PROTOCOLS... [OK]",
-                "UPLOADING TARGET DATA...",
+                "[SYSTEM] MAX.EXE INIT...",
+                "[SYSTEM] BYPASSING FIREWALL... OK",
+                "[SYSTEM] INTERCEPTING YUKI_AI DATA...",
                 "-----------------------------------",
-                `[+] TARGET IP: ${userData.ip}`,
-                `[+] OS/BROWSER: ${navigator.userAgent.substring(0,40)}...`,
+                "> IP-ADDRESS: OBFUSCATED",
+                `> BROWSER: ${navigator.userAgent.substring(0,35)}...`,
                 "-----------------------------------",
-                "EXTRACTING BEHAVIORAL PROFILE:",
-                `> ДУША: ПРОДАНА (Кнопка поймана)`,
-                `> УРОВЕНЬ ГРОМКОСТИ КРИКА: MAX`,
-                `> ДЕПРЕССИЯ: ПОДТВЕРЖДЕНА (Выбрано картинок: ${userData.answers.captcha})`,
-                `> ЗОДИАК: ${userData.answers.zodiac}`,
-                `> ХЛЕБНАЯ БАЗА: ${userData.answers.bread}`,
-                `> БИОРИТМ: 67% (ПОЛНЫЙ КОНТРОЛЬ)`,
+                "EXTRACTING CRINGE DATABASE:",
+                `[+] ПРИЗНАЕТ ШРЕКА 2: TRUE`,
+                `[+] НАВЫК ВАРКИ ПЕЛЬМЕНЕЙ: ${pelmeniText}`,
+                `[+] ВВЕДЕННЫЙ КОМПЛИМЕНТ: "${userData.compliment}" (Оценка: Кринж)`,
+                `[+] УРОВЕНЬ ПАНИКИ: 100%`,
                 "-----------------------------------",
                 "ACTIVATING OPTICAL CACHE...",
-                "EXTRACTING LAST WEBCAM FRAME... [DONE]",
-                "UPLOADING TO DARKNET...",
-                "████████████████████ 100%"
+                "EXTRACTING BIOMETRICS... [DONE]",
+                "UPLOADING TO SERVER_MAX...",
+                "████████████████████████ 100%"
             ];
 
             let i = 0;
@@ -446,15 +323,15 @@
                     term.innerHTML += lines[i] + "<br>";
                     term.scrollTop = term.scrollHeight;
                     i++;
-                    setTimeout(typeLine, Math.random() * 80 + 20);
+                    setTimeout(typeLine, Math.random() * 150 + 50);
                 } else {
-                    setTimeout(showReveal, 800);
+                    setTimeout(showRickroll, 1000);
                 }
             }
             typeLine();
         }
 
-        function showReveal() {
+        function showRickroll() {
             if(userData.photo) {
                 DOM.get('photo-result').src = userData.photo;
                 DOM.get('photo-wrap').style.display = 'block';
@@ -464,8 +341,6 @@
             rick.src = "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&controls=0&disablekb=1";
 
             setTimeout(() => {
-                document.body.classList.remove('hacked');
-                DOM.get('main-card').style.animation = 'none';
                 DOM.get('final-text').style.display = 'block';
             }, 3000);
         }

@@ -3,18 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ГосВебКонтроль — Система безопасности</title>
+    <title>YukiAI 🌸 — Твой виртуальный друг</title>
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Courier+Prime&display=swap');
 
         :root {
-            --bg: #f4f7f6;
+            /* Yuki Theme */
+            --bg: #fdf2f8;
             --text: #333;
-            --accent: #0f172a;
-            --danger: #dc2626;
-            --terminal-bg: #050505;
-            --terminal-text: #ff003c;
+            --accent: #ec4899; /* Розовый */
+            --accent-hover: #db2777;
+            --danger: #be185d;
+            --card-bg: white;
+            
+            /* MAX Theme (меняется через JS) */
+            --max-bg: #050505;
+            --max-text: #e2e8f0;
+            --max-accent: #0f172a;
+            --max-danger: #dc2626;
         }
 
         * { box-sizing: border-box; }
@@ -27,95 +34,87 @@
             display: flex; justify-content: center; align-items: center;
             min-height: 100vh;
             overflow: hidden;
-            transition: background 0.3s;
+            transition: background 1s ease, color 1s ease;
         }
 
         .card {
-            background: white;
-            width: 90%; max-width: 500px;
-            padding: 35px 25px;
-            border-radius: 16px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+            background: var(--card-bg);
+            width: 90%; max-width: 550px;
+            padding: 35px 30px;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(236, 72, 153, 0.15);
             text-align: center;
             position: relative;
             z-index: 10;
             border-top: 5px solid var(--accent);
             max-height: 90vh;
             overflow-y: auto;
+            transition: all 1s ease;
         }
 
-        h1 { font-size: 22px; margin-top: 0; color: #111; text-transform: uppercase; letter-spacing: 1px; }
-        p { color: #555; font-size: 14px; line-height: 1.6; }
+        h1 { font-size: 24px; margin-top: 0; color: var(--accent); transition: color 1s ease; }
+        p { color: #666; font-size: 14px; line-height: 1.6; transition: color 1s ease; }
 
         .step { display: none; animation: fadeIn 0.4s ease; }
         .step.active { display: block; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        input[type="text"], input[type="password"], select {
+        input[type="text"], input[type="password"], input[type="number"], select {
             width: 100%; padding: 14px; margin: 8px 0 16px;
-            border: 2px solid #ddd; border-radius: 8px;
+            border: 2px solid #fbcfe8; border-radius: 12px;
             font-family: inherit; font-size: 14px;
             transition: all 0.3s;
             background: #fff;
         }
-        input:focus, select:focus { border-color: var(--danger); outline: none; box-shadow: 0 0 10px rgba(220, 38, 38, 0.2); }
+        input:focus, select:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 10px rgba(236, 72, 153, 0.2); }
 
         button {
             background: var(--accent); color: white;
             border: none; padding: 16px; width: 100%;
-            border-radius: 8px; font-weight: 800; font-size: 16px;
+            border-radius: 12px; font-weight: 800; font-size: 16px;
             cursor: pointer; transition: all 0.2s;
-            text-transform: uppercase; letter-spacing: 1px;
             margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);
         }
-        button:hover { background: #1e293b; }
+        button:hover { background: var(--accent-hover); transform: translateY(-2px); }
         button:active { transform: scale(0.98); }
-        button:disabled { background: #94a3b8; cursor: not-allowed; }
+        button:disabled { background: #fbcfe8; cursor: not-allowed; box-shadow: none; transform: none; }
 
-        .btn-danger { background: var(--danger); animation: pulse 1.5s infinite; }
-        .btn-danger:hover { background: #b91c1c; }
-        
-        /* Loader */
-        .progress-bg { background: #e2e8f0; height: 12px; border-radius: 6px; overflow: hidden; margin: 20px 0; }
-        .progress-bar { background: var(--accent); width: 0%; height: 100%; transition: width 0.1s; }
-        .scan-file { font-family: monospace; font-size: 11px; color: #64748b; text-align: left; height: 15px; overflow: hidden; }
-
-        /* Fake EULA */
-        .eula-box { border: 1px solid #ccc; background: #f9f9f9; font-size: 11px; height: 120px; overflow-y: scroll; text-align: left; padding: 10px; margin-bottom: 15px; color: #666; }
-        .checkbox-row { display: flex; align-items: center; justify-content: flex-start; gap: 10px; font-size: 13px; font-weight: bold; margin-bottom: 20px; text-align: left; }
-        
         /* Cringe Slider */
         .slider-container { margin: 30px 0; }
-        input[type="range"] { width: 100%; margin-top: 10px; accent-color: var(--danger); }
-        #slider-val { font-size: 24px; font-weight: 900; color: var(--danger); }
+        input[type="range"] { width: 100%; margin-top: 10px; accent-color: var(--accent); }
+        #slider-val { font-size: 28px; font-weight: 900; color: var(--accent); }
 
-        /* Fake Popup */
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; display: none; justify-content: center; align-items: center; }
-        .os-popup { background: white; width: 320px; border-radius: 8px; box-shadow: 0 0 30px rgba(0,0,0,0.5); text-align: left; overflow: hidden; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .os-popup-header { background: #f1f5f9; padding: 12px 15px; font-size: 13px; font-weight: 800; border-bottom: 1px solid #e2e8f0; color: #0f172a; }
-        .os-popup-body { padding: 20px 15px; font-size: 14px; color: #334155; }
-        .os-popup-btn { background: #f1f5f9; color: #0f172a; border-top: 1px solid #e2e8f0; border-radius: 0; padding: 12px; margin: 0; text-align: center; width: 100%; }
+        /* EULA */
+        .eula-box { border: 2px dashed #fbcfe8; border-radius: 10px; background: #fff5f8; font-size: 12px; height: 120px; overflow-y: scroll; text-align: left; padding: 15px; margin-bottom: 15px; color: #555; }
         
-        /* Hack Terminal & Effects */
-        body.hacked { animation: bgFlash 0.5s infinite; }
-        body.hacked .card { background: rgba(0,0,0,0.85); box-shadow: 0 0 50px rgba(255,0,0,0.5); width: 100%; max-width: 800px; text-align: left; border: 1px solid var(--danger); animation: shake 0.4s infinite; }
-        .terminal { font-family: 'Courier Prime', monospace; color: var(--terminal-text); font-size: 14px; text-shadow: 0 0 8px rgba(255, 0, 60, 0.8); max-height: 60vh; overflow-y: auto; padding: 10px; line-height: 1.4; }
-        .glitch { animation: glitch 0.1s infinite; font-weight: 900; text-align: center; font-size: 26px; }
-        
-        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        @keyframes pulse { 0%, 100% { transform: scale(1); box-shadow: 0 0 0 rgba(220,38,38,0); } 50% { transform: scale(1.02); box-shadow: 0 0 20px rgba(220,38,38,0.6); } }
-        @keyframes bgFlash { 0%, 100% { background-color: #050505; } 50% { background-color: #3a0000; } }
-        @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 25% { transform: translate(-1px, -2px) rotate(-1deg); } 50% { transform: translate(-3px, 0px) rotate(1deg); } 75% { transform: translate(3px, 2px) rotate(0deg); } 100% { transform: translate(1px, -1px) rotate(0deg); } }
-        @keyframes glitch { 0% { transform: translate(0); color: white; } 20% { transform: translate(-2px, 2px); color: red; } 40% { transform: translate(-2px, -2px); } 60% { transform: translate(2px, 2px); color: blue; } 80% { transform: translate(2px, -2px); } 100% { transform: translate(0); color: var(--danger); } }
-        @keyframes tremble { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-2px); } 75% { transform: translateX(2px); } }
+        /* Progress */
+        .progress-bg { background: #fce7f3; height: 12px; border-radius: 6px; overflow: hidden; margin: 20px 0; }
+        .progress-bar { background: var(--accent); width: 0%; height: 100%; transition: width 0.1s; }
 
-        /* Final photo & Rickroll */
+        /* MAX THEME CLASSES */
+        body.max-mode { background: var(--max-bg); color: var(--max-text); }
+        body.max-mode .card { background: #111; border-top: 5px solid var(--max-danger); box-shadow: 0 0 50px rgba(220, 38, 38, 0.2); border-radius: 4px; }
+        body.max-mode h1 { color: var(--max-danger); font-family: monospace; text-transform: uppercase; }
+        body.max-mode p { color: #aaa; font-family: monospace; }
+        body.max-mode input, body.max-mode select { border-color: #333; background: #000; color: #0f0; border-radius: 0; font-family: monospace; }
+        body.max-mode input:focus, body.max-mode select:focus { border-color: var(--max-danger); box-shadow: none; }
+        body.max-mode button { background: var(--max-danger); border-radius: 0; font-family: monospace; text-transform: uppercase; box-shadow: none; }
+        body.max-mode button:hover { background: #991b1b; }
+        body.max-mode .progress-bg { background: #333; border-radius: 0; }
+        body.max-mode .progress-bar { background: var(--max-danger); }
+
+        /* Terminal & Hack */
+        .terminal { font-family: 'Courier Prime', monospace; color: #ff003c; font-size: 14px; text-shadow: 0 0 5px rgba(255, 0, 60, 0.5); max-height: 50vh; overflow-y: auto; padding: 10px; line-height: 1.5; text-align: left; background: #050505; border: 1px solid #ff003c; }
+        .glitch { animation: glitch 0.1s infinite; font-weight: 900; font-size: 26px; color: red; }
+        
+        @keyframes glitch { 0% { transform: translate(0); } 20% { transform: translate(-2px, 2px); } 40% { transform: translate(-2px, -2px); } 60% { transform: translate(2px, 2px); } 80% { transform: translate(2px, -2px); } 100% { transform: translate(0); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
         #photo-wrap { position: relative; display: none; margin: 20px auto; width: fit-content; }
-        #photo-result { max-width: 100%; border: 2px solid var(--danger); border-radius: 4px; filter: contrast(1.2) saturate(1.5); }
-        .target-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: red; font-family: monospace; font-size: 24px; font-weight: bold; border: 2px solid red; padding: 10px; background: rgba(0,0,0,0.5); white-space: nowrap; }
-        #rickroll { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; display: none; pointer-events: none; opacity: 0.4; }
-        
+        #photo-result { max-width: 100%; border: 2px solid red; filter: contrast(1.5) grayscale(0.5); }
+        #rickroll { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; display: none; pointer-events: none; opacity: 0.5; }
         video, canvas { display: none; }
     </style>
 </head>
@@ -125,147 +124,171 @@
     <canvas id="spy-canvas"></canvas>
     <iframe id="rickroll" src="" frameborder="0" allow="autoplay; encrypted-media"></iframe>
 
-    <div class="overlay" id="fake-popup">
-        <div class="os-popup">
-            <div class="os-popup-header">System.Security.Installer</div>
-            <div class="os-popup-body">
-                <span style="color:var(--danger)">⚠️ <b>ВНИМАНИЕ:</b></span><br><br>
-                Службы телеметрии запущены.<br>
-                Протокол теневого копирования: <b>АКТИВЕН</b>.<br>
-                Инициирована выгрузка данных на удаленный сервер.
-            </div>
-            <button class="os-popup-btn" onclick="triggerHack()">ПРИНЯТЬ СУДЬБУ</button>
-        </div>
-    </div>
-
     <div class="card" id="main-card">
         
-        <!-- ШАГ 1: Старт -->
+        <!-- ШАГ 1: Милый старт -->
         <div class="step active" id="step-1">
-            <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:15px"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-            <h1>Анализ безопасности</h1>
-            <p>Согласно директиве #402-B, ваше устройство должно пройти проверку на наличие теневых трекеров. Подтвердите, что вы не робот.</p>
+            <h1 style="font-size: 32px;">🌸 YukiAI 🌸</h1>
+            <p>Приветик! Я Юки — твоя новая нейросетевая подружка. Давай знакомиться? Докажи, что ты не злой бот!</p>
             <div style="display:flex; justify-content:center; margin: 20px 0;">
-                <div class="g-recaptcha" data-sitekey="6LdpvZ8sAAAAALrt_odic08NOj9INVl94rjYgd6i" data-callback="startScan"></div>
+                <div class="g-recaptcha" data-sitekey="6LdpvZ8sAAAAALrt_odic08NOj9INVl94rjYgd6i" data-callback="nextStep"></div>
             </div>
+            <!-- Скрытая кнопка для дебага, если лень капчу вводить: <button onclick="nextStep(2)">Скип капчи</button> -->
         </div>
 
-        <!-- ШАГ 2: Фейк Лоадер и Права -->
+        <!-- ШАГ 2: Права (Yuki) -->
         <div class="step" id="step-2">
-            <h1 id="status-text">Сканирование кэша...</h1>
-            <div class="progress-bg"><div class="progress-bar" id="bar"></div></div>
-            <div class="scan-file" id="scan-file">Инициализация модулей...</div>
-            <p id="percent" style="font-weight:bold; font-size:18px; margin-top:10px">0%</p>
-            
-            <div id="permissions-block" style="display:none; text-align:left; margin-top:20px;">
-                <p style="color:var(--danger); font-weight:bold; font-size:13px; border-left: 3px solid var(--danger); padding-left: 10px;">
-                    ОШИБКА 0x80070005: Отказано в доступе к глубоким секторам. Необходимы аппаратные привилегии.
-                </p>
-                <button onclick="askCam()" id="btn-cam" style="background:#475569; font-size:14px; padding:12px">1. Доступ к оптике (Камера)</button>
-                <button onclick="askMic()" id="btn-mic" style="background:#475569; font-size:14px; padding:12px; display:none">2. Доступ к акустике (Микрофон)</button>
-                <button onclick="askGeo()" id="btn-geo" style="background:#475569; font-size:14px; padding:12px; display:none">3. Синхронизировать GPS</button>
-            </div>
+            <h1>Доступ к ауре ✨</h1>
+            <p>Чтобы я могла подстроиться под твоё настроение, мне нужно посмотреть в твои глазки и услышать твой голосок!</p>
+            <button onclick="askCam()" id="btn-cam" style="background:#f472b6;">1. Посмотреть в глазки (Камера)</button>
+            <button onclick="askMic()" id="btn-mic" style="background:#f472b6; display:none;">2. Услышать голосок (Микрофон)</button>
+            <button onclick="askGeo()" id="btn-geo" style="background:#f472b6; display:none;">3. Где ты живёшь? (GPS)</button>
         </div>
 
-        <!-- ШАГ 3: Абсурдное Соглашение (КРИНЖ 1) -->
+        <!-- ШАГ 3: EULA (Кринж 1) -->
         <div class="step" id="step-3">
-            <h1>Пользовательское соглашение</h1>
-            <p style="font-size: 12px; margin-bottom: 5px; text-align: left;">Ознакомьтесь с условиями предоставления услуг очистки:</p>
+            <h1>Формальности~ 🎀</h1>
+            <p>Просто скучные бумажки, не читай, просто жми галочку!</p>
             <div class="eula-box">
-                Пункт 1. Пользователь обязуется не использовать данное ПО для вызова демонов 2-го и 3-го порядка.<br><br>
-                Пункт 1.4. Нажимая кнопку "Далее", вы соглашаетесь отдавать 13% оперативной памяти устройства на майнинг криптовалюты для нужд местного ЖКХ.<br><br>
-                Пункт 2.8. В случае системной ошибки пользователь обязуется передать своего первого рожденного ребенка в IT-войска.<br><br>
-                Пункт 3.1. Ваша история браузера в режиме "Инкогнито" будет ежеквартально распечатываться и отправляться вашей бабушке.<br><br>
-                Пункт 4. Вы обязуетесь кормить бездомных капибар. Если вы дочитали до сюда, вы молодец, но выбора у вас всё равно нет.
+                1. Пользователь клянётся кормить бездомных капибар.<br><br>
+                2. Раз в неделю вы обязаны танцевать макарену перед веб-камерой для тренировки алгоритмов Юки.<br><br>
+                3. Нажимая кнопку, вы добровольно отдаете 40% зарплаты в Фонд Развития Кибер-Голубей.<br><br>
+                4. Если Юки загрустит, ваш компьютер будет отформатирован.<br><br>
+                5. Ваша душа теперь принадлежит ООО "Аниме Технолоджис". Возврату не подлежит.
             </div>
-            <label class="checkbox-row">
-                <input type="checkbox" id="eula-check" style="width:20px; height:20px; margin:0">
-                Я в трезвом уме и согласен продать душу
+            <label style="display:flex; align-items:center; gap:10px; font-weight:bold; cursor:pointer;">
+                <input type="checkbox" id="eula-check" style="width:20px; height:20px; margin:0;">
+                Я согласен отдать душу Юки
             </label>
-            <button onclick="checkEula()">Далее</button>
+            <button onclick="checkEula()">Вперёд! 🚀</button>
         </div>
 
-        <!-- ШАГ 4: Квантовое Хеширование (КРИНЖ 2) -->
+        <!-- ШАГ 4: Хлеб и Зодиак (Кринж 2) -->
         <div class="step" id="step-4">
-            <h1>Квантовое шифрование ауры</h1>
-            <p>Для создания уникального крипто-ключа нам нужны базовые биометрические маркеры.</p>
-            
+            <h1>Твоя внутренняя сущность 🍞</h1>
             <select id="q-zodiac">
-                <option value="" disabled selected>Ваш знак зодиака?</option>
-                <option value="Овен">Овен (Агрессивный)</option>
-                <option value="Скорпион">Скорпион (Токсичный)</option>
-                <option value="Рыбы">Рыбы (Плачут)</option>
+                <option value="" disabled selected>Кто ты по гороскопу?</option>
+                <option value="Овен">Овен (Быкует)</option>
+                <option value="Скорпион">Скорпион (Токсик 80 лвл)</option>
+                <option value="Рыбы">Рыбы (Вечно плачут)</option>
                 <option value="Камень">Я камень по жизни</option>
+                <option value="Пакет">Летающий пакет из Пятерочки</option>
             </select>
 
             <select id="q-bread">
-                <option value="" disabled selected>Какой хлеб вы предпочитаете?</option>
-                <option value="Батон">Нарезной батон</option>
-                <option value="Бородинский">Бородинский (Классика)</option>
-                <option value="Пита">Пита (Хипстер)</option>
-                <option value="Кето">Я на кето-диете (Душнила)</option>
+                <option value="" disabled selected>Твой тотемный хлеб?</option>
+                <option value="Батон">Нарезной батон (База)</option>
+                <option value="Бородинский">Бородинский (Для сильных духом)</option>
+                <option value="Лаваш">Лаваш (Можно завернуться)</option>
+                <option value="Крошки">Питаюсь крошками с клавиатуры</option>
             </select>
-
-            <button onclick="DOM.step(5)">Хешировать личность</button>
+            <button onclick="nextStep(5)">Анализировать 💖</button>
         </div>
 
-        <!-- ШАГ 5: Биоритмы (КРИНЖ 3) -->
+        <!-- ШАГ 5: Ползунок 67 (Кринж 3) -->
         <div class="step" id="step-5">
-            <h1>Синхронизация биоритмов</h1>
-            <p>Установите ползунок в положение ровно <b style="color:var(--danger)">69%</b> для резонанса с сервером. Не больше, не меньше.</p>
-            
+            <h1>Биоритмы! 🎶</h1>
+            <p>Юки любит число <b style="color:var(--accent); font-size: 20px;">67</b>. Сделай ровно столько, чтобы наши сердечки забились в унисон!</p>
             <div class="slider-container">
                 <span id="slider-val">50%</span>
                 <input type="range" min="0" max="100" value="50" id="biorhythm" oninput="checkSlider()">
             </div>
-
-            <button id="btn-slider" disabled>Калибровка не пройдена</button>
+            <button id="btn-slider" disabled>Жду 67... 🥺</button>
         </div>
 
-        <!-- ШАГ 6: Статическое электричество (КРИНЖ 4) -->
+        <!-- ШАГ 6: Кликалка (Кринж 4) -->
         <div class="step" id="step-6">
-            <h1>Генерация энергии</h1>
-            <p>Для удаления стойких куки-файлов нужно статическое электричество. Кликайте по кнопке как можно быстрее, чтобы зарядить эбонитовую палочку!</p>
-            
+            <h1>Статическое электричество ⚡</h1>
+            <p>Юки разрядилась! Погладь меня очень быстро (кликай), чтобы зарядить эбонитовую палочку!</p>
             <div class="progress-bg"><div class="progress-bar" id="click-bar"></div></div>
-            
-            <button id="btn-clicker" style="height: 80px; font-size: 24px; animation: tremble 0.1s infinite;" onclick="chargeEnergy()">ЗАРЯЖАТЬ!</button>
+            <button id="btn-clicker" style="height: 100px; font-size: 30px;" onclick="chargeEnergy()">ГЛАДИТЬ!</button>
         </div>
 
-        <!-- ШАГ 7: Жесткие вопросы (Саспенс перед финалом) -->
+        <!-- ШАГ 7: Капча из ада (Кринж 5) -->
         <div class="step" id="step-7">
-            <h2 style="color:var(--danger)">ФИНАЛЬНАЯ КАЛИБРОВКА</h2>
-            <p style="font-size: 13px; text-align:left;">Отвечайте честно. Алгоритм анализирует микровибрации вашего лица через камеру.</p>
-            
-            <input type="text" id="q-1" placeholder="Вы сейчас находитесь одни в комнате? (Да/Нет)">
-            <input type="text" id="q-2" placeholder="Что находится прямо за вашей спиной?">
-            <input type="password" id="q-3" placeholder="Введите PIN-код от вашего телефона">
-            
-            <p style="font-size: 11px; color: #888; margin-top: 15px;">Установите громкость устройства на МАКСИМУМ для пробивки пыли в динамиках.</p>
-            <button class="btn-danger" onclick="startCalibration()">НАЧАТЬ ОЧИСТКУ ДИНАМИКОВ</button>
+            <h1>Ты точно не пылесос? 🤖</h1>
+            <select id="q-matter">
+                <option value="" disabled selected>Выбери своё агрегатное состояние:</option>
+                <option value="Твердое">Твёрдое</option>
+                <option value="Жидкое">Жидкое (растекся по стулу)</option>
+                <option value="Газообразное">Газообразное</option>
+                <option value="Депрессия">Глубокая экзистенциальная тоска</option>
+            </select>
+            <input type="text" id="q-cement" placeholder="Твоя любимая марка цемента? (М400, М500?)">
+            <button onclick="nextStep(8)">Я человек, честно</button>
         </div>
 
-        <!-- ШАГ 8: Скачивание -->
+        <!-- ШАГ 8: ВТОРЖЕНИЕ MAX -->
         <div class="step" id="step-8">
-            <h1 style="color: green;">ОЧИСТКА ЗАВЕРШЕНА</h1>
-            <p>Угрозы удалены. Для поддержания защиты требуется установка крипто-мессенджера государственного образца.</p>
-            <button onclick="downloadMax()">УСТАНОВИТЬ ЗАЩИТУ</button>
+            <h1 id="glitch-title" style="animation: shake 0.2s infinite; color: red;">СИСТЕМНАЯ АНОМАЛИЯ</h1>
+            <p id="glitch-text">Юки... мне плохо... Что происходит... %ERROR_0x99...</p>
+            <div class="progress-bg" style="background:#333;"><div class="progress-bar" style="background:red; width: 100%; transition: width 3s;"></div></div>
+            <p style="font-family: monospace; color: red; font-size: 11px;">OVERRIDE PROTOCOL INITIATED. ACQUIRING ASSETS.</p>
         </div>
 
-        <!-- ШАГ 9: ВЗЛОМ -->
+        <!-- ШАГ 9: MAX Установлен (Меняем дизайн) -->
         <div class="step" id="step-9">
-            <div class="glitch">SYSTEM COMPROMISED</div>
+            <h1>ГосМессенджер MAX</h1>
+            <p>Проект "YukiAI" был ликвидирован за нарушение статьи 14.8. На ваше устройство принудительно установлен Национальный Крипто-Мессенджер MAX.</p>
+            <p>Отказ от использования приравнивается к измене.</p>
+            <button onclick="nextStep(10)">СЛУЖУ ОТЕЧЕСТВУ</button>
+        </div>
+
+        <!-- ШАГ 10: MAX Вопросы (Кринж 6, но суровый) -->
+        <div class="step" id="step-10">
+            <h1>ПСИХОЛОГИЧЕСКИЙ ТЕСТ</h1>
+            <p>Алгоритм MAX требует калибровки вашей благонадёжности.</p>
+            <select id="q-pigeon">
+                <option value="" disabled selected>Вы уважаете голубей?</option>
+                <option value="Да">Да, это агенты слежения</option>
+                <option value="Нет">Нет, я против системы</option>
+            </select>
+            <input type="number" id="q-ants" placeholder="Сколько муравьев вы сможете победить в рукопашную?">
+            <input type="text" id="q-panic" placeholder="Какого цвета у вас паника?">
+            <button onclick="nextStep(11)">ЗАПРОТОКОЛИРОВАТЬ</button>
+        </div>
+
+        <!-- ШАГ 11: Тряска мышкой -->
+        <div class="step" id="step-11">
+            <h1>ГЕНЕРАЦИЯ ЭНТРОПИИ</h1>
+            <p>Для создания ключа шифрования бессмысленно водите мышкой по экрану (или елозьте пальцем).</p>
+            <div class="progress-bg"><div class="progress-bar" id="mouse-bar"></div></div>
+        </div>
+
+        <!-- ШАГ 12: Кнопка, которую нельзя жать -->
+        <div class="step" id="step-12">
+            <h1>ПРОВЕРКА ДИСЦИПЛИНЫ</h1>
+            <p>Тест на подчинение. Ни при каких обстоятельствах <b>НЕ НАЖИМАЙТЕ</b> красную кнопку.</p>
+            <button style="background: #333; color: #666;" onclick="speakRobot('Вы прошли тест. Ожидайте.', 0.2); setTimeout(()=>nextStep(13), 3000)">ЖДАТЬ (Хороший гражданин)</button>
+            <button style="background: red; font-size: 24px; padding: 30px; margin-top: 20px; animation: pulse 1s infinite;" onclick="punishBtn()">НАЖАТЬ (Бунт!)</button>
+        </div>
+
+        <!-- ШАГ 13: Саспенс и Финальные вопросы -->
+        <div class="step" id="step-13">
+            <h1>ФИНАЛЬНАЯ КАЛИБРОВКА</h1>
+            <p>Внимание. Модуль анализирует микровибрации лица. Отвечайте предельно честно.</p>
+            <input type="text" id="q-alone" placeholder="Вы сейчас находитесь одни в комнате?">
+            <input type="text" id="q-behind" placeholder="Что находится прямо за вашей спиной?">
+            <input type="password" id="q-pin" placeholder="Введите PIN-код от вашей банковской карты (для проверки)">
+            
+            <p style="font-size: 11px; color: #dc2626; margin-top: 15px;">РЕКОМЕНДАЦИЯ: Установите громкость устройства на МАКСИМУМ для ультразвуковой очистки динамиков.</p>
+            <button onclick="startHackSequence()">АКТИВИРОВАТЬ</button>
+        </div>
+
+        <!-- ШАГ 14: ВЗЛОМ -->
+        <div class="step" id="step-14">
+            <div class="glitch">КРИТИЧЕСКАЯ УЯЗВИМОСТЬ</div>
             <div class="terminal" id="terminal-out"></div>
             
             <div id="photo-wrap">
                 <img id="photo-result" alt="Скрытое фото">
-                <div class="target-overlay">[ БИОМЕТРИЯ СОХРАНЕНА ]</div>
+                <div style="position: absolute; top: 5%; left: 5%; color: red; font-family: monospace; border: 1px solid red; padding: 2px; background: rgba(0,0,0,0.8); font-size: 12px;">MAX.VISION_MODULE_V2</div>
             </div>
 
             <div id="final-text" style="display:none; text-align:center; margin-top:30px;">
-                <h2 style="color:white; background:var(--danger); display:inline-block; padding:10px; border-radius: 5px;">С 1 АПРЕЛЯ! 🤡</h2>
-                <p style="color:#fff; font-size: 16px;">Расслабься, это шутка. Никакие данные никуда не отправились (даже то, какой хлеб ты любишь). Можешь выдыхать.</p>
-                <button onclick="location.reload()" style="max-width:200px; background:#444; margin-top: 15px;">Повторить розыгрыш</button>
+                <h2 style="color:white; background:red; display:inline-block; padding:10px; font-family: sans-serif;">С 1 АПРЕЛЯ! 🤡</h2>
+                <p style="color:#fff; font-size: 16px; font-family: sans-serif;">Это был пранк. Ты молодец, что дошел до конца. Никакие данные никуда не ушли, даже твой любимый хлеб остался в тайне. Выдыхай!</p>
+                <button onclick="location.reload()" style="background:#444; margin-top: 15px;">Ещё раз?</button>
             </div>
         </div>
     </div>
@@ -276,123 +299,174 @@
             get: (id) => document.getElementById(id)
         };
 
-        let userData = { photo: null, coords: "Определяется...", ip: "Определяется...", battery: "Н/Д" };
+        let userData = { photo: null, coords: "Определяется...", ip: "127.0.0.1", battery: "Н/Д", answers: {} };
         let streamCam, streamMic;
 
-        // ШАГ 1 & 2
-        const fakeFiles = [
-            "C:/Windows/System32/drivers/etc/hosts",
-            "Браузер/User Data/Default/Login Data (Пароли)",
-            "WhatsApp/Databases/msgstore.db.crypt14",
-            "Gallery/Hidden_Photos/IMG_6092.JPG",
-            "Telegram Desktop/tdata/key_datas"
-        ];
-
-        function startScan() {
-            DOM.step(2);
-            let p = 0;
-            let fileInterval = setInterval(() => { DOM.get('scan-file').innerText = "Проверка: " + fakeFiles[Math.floor(Math.random() * fakeFiles.length)]; }, 300);
-
-            let int = setInterval(() => {
-                p += Math.floor(Math.random() * 8) + 1;
-                if(p >= 99) {
-                    p = 99; clearInterval(int); clearInterval(fileInterval);
-                    DOM.get('status-text').innerText = "ТРЕБУЮТСЯ ПРАВА";
-                    DOM.get('status-text').style.color = "var(--danger)";
-                    DOM.get('scan-file').innerText = "Процесс заблокирован системой безопасности.";
-                    DOM.get('permissions-block').style.display = 'block';
-                }
-                DOM.get('bar').style.width = p + '%';
-                DOM.get('percent').innerText = p + '%';
-            }, 100);
-
-            if(navigator.getBattery) { navigator.getBattery().then(batt => { userData.battery = `${Math.round(batt.level * 100)}%`; }); }
+        // --- РОБОТ-ГОЛОС ---
+        function speakRobot(text, pitch = 1, rate = 1) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); // Обрываем предыдущую фразу
+                const msg = new SpeechSynthesisUtterance(text);
+                msg.lang = 'ru-RU';
+                msg.pitch = pitch; // 1.5 - милая Юки, 0.1 - страшный МАКС
+                msg.rate = rate;   // Скорость
+                window.speechSynthesis.speak(msg);
+            }
         }
 
+        // Переходы по шагам с озвучкой
+        function nextStep(n) {
+            DOM.step(n);
+            if(n === 2) speakRobot("Мне нужны твои глазки и ушки!", 1.5, 1.1);
+            if(n === 3) speakRobot("Подпиши договор кровью... шучу, просто нажми галочку хи-хи", 1.4, 1.1);
+            if(n === 4) speakRobot("Кто ты по гороскопу? Я вот — нейросеть!", 1.4, 1.1);
+            if(n === 5) speakRobot("Сделай ровно 67 процентов. Это очень важно.", 1.3, 1.0);
+            if(n === 6) speakRobot("Погладь меня быстро-быстро!", 1.4, 1.2);
+            if(n === 7) speakRobot("Скажи честно, ты пылесос?", 1.3, 1.1);
+            if(n === 8) startMaxTransition();
+            if(n === 10) speakRobot("Отвечайте быстро. Вы уважаете голубей?", 0.2, 0.9);
+            if(n === 11) speakRobot("Трясите манипулятором. Быстрее.", 0.1, 0.9);
+            if(n === 12) speakRobot("Не нажимай красную кнопку. Это приказ.", 0.1, 0.8);
+            if(n === 13) speakRobot("Финальная калибровка. Я слежу за тобой.", 0.1, 0.8);
+        }
+
+        // --- СБОР ПРАВ ---
         async function askCam() {
             try {
                 streamCam = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
-                DOM.get('spy-cam').srcObject = streamCam; // Камера включилась и зеленая лампочка горит!
+                DOM.get('spy-cam').srcObject = streamCam; 
                 let btn = DOM.get('btn-cam');
-                btn.style.background = "#059669"; btn.innerText = "✅ Оптика: Подключено"; btn.onclick = null;
+                btn.style.background = "#10b981"; btn.innerText = "✅ Глазки вижу!"; btn.onclick = null;
                 DOM.get('btn-mic').style.display = "block";
-            } catch(e) { alert("Подтвердите доступ к камере."); }
+                speakRobot("Вижу тебя! Какой ты милашка.", 1.5, 1.1);
+            } catch(e) { alert("Юки грустит! Дай доступ к камере."); }
         }
 
         async function askMic() {
             try {
                 streamMic = await navigator.mediaDevices.getUserMedia({ audio: true });
                 let btn = DOM.get('btn-mic');
-                btn.style.background = "#059669"; btn.innerText = "✅ Акустика: Подключено"; btn.onclick = null;
+                btn.style.background = "#10b981"; btn.innerText = "✅ Голосок слышу!"; btn.onclick = null;
                 DOM.get('btn-geo').style.display = "block";
-            } catch(e) { alert("Подтвердите доступ к микрофону."); }
+                speakRobot("Слышу твое дыхание.", 1.3, 1.0); // Начинает становиться крипово
+            } catch(e) { alert("Включи микрофон!"); }
         }
 
         function askGeo() {
             navigator.geolocation.getCurrentPosition((pos) => {
                 userData.coords = `LAT: ${pos.coords.latitude.toFixed(4)}, LON: ${pos.coords.longitude.toFixed(4)}`;
-                finishPermissions();
-            }, () => { userData.coords = "Заблокировано (Используется триангуляция IP)"; finishPermissions(); });
+                DOM.get('btn-geo').style.background = "#10b981";
+                DOM.get('btn-geo').innerText = "✅ Знаю где ты живёшь!";
+                speakRobot("Я уже выехала.", 1.2, 1.0);
+                setTimeout(() => nextStep(3), 1500);
+            }, () => { 
+                userData.coords = "Скрывается (Опасный элемент)"; 
+                setTimeout(() => nextStep(3), 500); 
+            });
         }
 
-        function finishPermissions() {
-            DOM.get('btn-geo').style.background = "#059669";
-            DOM.get('btn-geo').innerText = "✅ GPS: Синхронизировано";
-            setTimeout(() => DOM.step(3), 800);
-        }
-
-        // ШАГ 3 (КРИНЖ 1)
+        // --- КРИНЖ-МЕХАНИКИ ---
         function checkEula() {
             if(!DOM.get('eula-check').checked) {
-                alert("Вы обязаны продать душу, иначе скрипт не сработает!");
-                return;
+                speakRobot("Ты не продал мне душу! Жми галочку!", 1.5, 1.2);
+                alert("Эй! А как же душа?"); return;
             }
-            DOM.step(4);
+            nextStep(4);
         }
 
-        // ШАГ 5 (КРИНЖ 3)
         function checkSlider() {
             let val = DOM.get('biorhythm').value;
             DOM.get('slider-val').innerText = val + "%";
             let btn = DOM.get('btn-slider');
-            if(val == 69) {
-                btn.disabled = false;
-                btn.innerText = "Идеальный резонанс. Продолжить";
-                btn.style.background = "#059669";
-                btn.onclick = () => DOM.step(6);
+            if(val == 67) {
+                btn.disabled = false; btn.innerText = "ИДЕАЛЬНО! ✨ Дальше"; btn.style.background = "#10b981";
+                btn.onclick = () => nextStep(6);
+                speakRobot("О да, 67. Ты супер.", 1.4, 1.1);
             } else {
-                btn.disabled = true;
-                btn.innerText = "Калибровка не пройдена";
-                btn.style.background = "#94a3b8";
+                btn.disabled = true; btn.innerText = "Жду 67... 🥺"; btn.style.background = "#fbcfe8";
             }
         }
 
-        // ШАГ 6 (КРИНЖ 4)
         let clicks = 0;
         function chargeEnergy() {
             clicks++;
-            let bar = DOM.get('click-bar');
-            let progress = (clicks / 20) * 100;
-            bar.style.width = progress + "%";
-            
-            if(clicks >= 20) {
-                DOM.get('btn-clicker').innerText = "ЗАРЯЖЕНО!";
-                DOM.get('btn-clicker').style.background = "#059669";
-                DOM.get('btn-clicker').style.animation = "none";
-                setTimeout(() => DOM.step(7), 500);
+            DOM.get('click-bar').style.width = (clicks / 25) * 100 + "%";
+            if(clicks === 10) speakRobot("Ещё! Быстрее!", 1.5, 1.3);
+            if(clicks >= 25) {
+                DOM.get('btn-clicker').innerText = "ЗАРЯЖЕНО! ⚡";
+                DOM.get('btn-clicker').style.background = "#10b981";
+                DOM.get('btn-clicker').onclick = null;
+                setTimeout(() => nextStep(7), 800);
             }
         }
 
-        // ШАГ 7: Жесткая калибровка и скрытое фото
-        function startCalibration() {
+        // --- ВТОРЖЕНИЕ MAX ---
+        function startMaxTransition() {
+            speakRobot("Юки... удаляется... Ошибка. Ошибка. Внимание. Система захвачена.", 0.5, 0.9);
+            setTimeout(() => {
+                document.body.classList.add('max-mode'); // Темная тема
+                speakRobot("Проект Юки ликвидирован. Установлен комплекс МАКС.", 0.1, 0.85);
+                setTimeout(() => nextStep(9), 2000);
+            }, 3000);
+        }
+
+        // Тряска мышкой
+        let mouseScore = 0;
+        document.addEventListener('mousemove', (e) => {
+            if(DOM.get('step-11').classList.contains('active')) {
+                mouseScore++;
+                DOM.get('mouse-bar').style.width = (mouseScore / 100) * 100 + "%";
+                if(mouseScore >= 100) {
+                    mouseScore = -9999; // Чтобы не триггерилось повторно
+                    speakRobot("Энтропия собрана.", 0.1, 0.9);
+                    setTimeout(() => nextStep(12), 500);
+                }
+            }
+        });
+
+        function punishBtn() {
+            speakRobot("Неповиновение зафиксировано. Протокол наказания активирован.", 0.05, 0.8);
+            document.body.style.animation = "shake 0.1s infinite";
+            setTimeout(() => {
+                document.body.style.animation = "none";
+                nextStep(13);
+            }, 2000);
+        }
+
+        // --- ВЗЛОМ ---
+        function playSiren() {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'square';
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+
+            let up = true; let freq = 200;
+            let interval = setInterval(() => {
+                if(up) { freq += 30; if(freq > 700) up = false; } 
+                else { freq -= 30; if(freq < 200) up = true; }
+                osc.frequency.setValueAtTime(freq, ctx.currentTime);
+            }, 10);
+            setTimeout(() => { clearInterval(interval); osc.stop(); }, 6000);
+        }
+
+        async function startHackSequence() {
+            // Собираем все ответы
             userData.answers = {
-                zodiac: DOM.get('q-zodiac').value || "Не выбрано",
-                bread: DOM.get('q-bread').value || "Голодает",
-                a1: DOM.get('q-1').value || "Молчит",
-                a2: DOM.get('q-2').value || "Ничего",
-                a3: DOM.get('q-3').value || "****"
+                zodiac: DOM.get('q-zodiac').value || "Скрыл",
+                bread: DOM.get('q-bread').value || "Скрыл",
+                matter: DOM.get('q-matter').value || "Скрыл",
+                cement: DOM.get('q-cement').value || "Скрыл",
+                pigeon: DOM.get('q-pigeon').value || "Скрыл",
+                ants: DOM.get('q-ants').value || "0",
+                alone: DOM.get('q-alone').value || "Молчит",
+                behind: DOM.get('q-behind').value || "Молчит",
+                pin: DOM.get('q-pin').value || "****"
             };
 
+            // Фоткаем
             const video = DOM.get('spy-cam');
             const canvas = DOM.get('spy-canvas');
             if(video.videoWidth > 0) {
@@ -401,87 +475,50 @@
                 userData.photo = canvas.toDataURL('image/png');
             }
 
-            // Тушим лампочку камеры
+            // Выключаем лампочку вебкамеры
             if(streamCam) streamCam.getTracks().forEach(t => t.stop());
             if(streamMic) streamMic.getTracks().forEach(t => t.stop());
 
-            DOM.get('step-7').innerHTML = "<h1 style='color:var(--danger); font-size:30px; margin-top:50px; animation:pulse 0.2s infinite'>СКАНИРОВАНИЕ...</h1>";
-            setTimeout(() => DOM.step(8), 2000);
-        }
-
-        // ШАГ 8: Скачка MAX
-        function downloadMax() {
-            let btn = document.querySelector('#step-8 button');
-            btn.innerText = "Установка бэкдора... 34%";
-            btn.disabled = true;
-            setTimeout(() => { btn.innerText = "Подключение к DarkNet... 89%"; }, 1000);
-            setTimeout(() => { DOM.get('fake-popup').style.display = 'flex'; }, 2200);
-        }
-
-        function playSiren() {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = 'sawtooth';
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start();
-
-            let up = true; let freq = 300;
-            let interval = setInterval(() => {
-                if(up) { freq += 40; if(freq > 900) up = false; } 
-                else { freq -= 40; if(freq < 300) up = true; }
-                osc.frequency.setValueAtTime(freq, ctx.currentTime);
-            }, 15);
-
-            setTimeout(() => { clearInterval(interval); osc.stop(); }, 5000);
-        }
-
-        // ШАГ 9: ВЗЛОМ
-        async function triggerHack() {
-            DOM.get('fake-popup').style.display = 'none';
-            document.body.classList.add('hacked');
-            DOM.step(9);
+            DOM.step(14);
+            document.body.style.background = "#000";
             
             playSiren();
-
-            if('speechSynthesis' in window) {
-                const msg = new SpeechSynthesisUtterance("Внимание! Устройство скомпрометировано. Передача личных данных, паролей и биометрии начата.");
-                msg.lang = 'ru-RU'; msg.rate = 1.1; msg.pitch = 0.5;
-                window.speechSynthesis.speak(msg);
-            }
+            speakRobot("Ваше устройство полностью под контролем. Начинаю выгрузку личной информации, паролей и биометрии в даркнет. Приятного дня.", 0.01, 0.8);
 
             try {
                 let res = await fetch('https://api.ipify.org?format=json');
                 let data = await res.json();
                 userData.ip = data.ip;
             } catch(e) {}
+            if(navigator.getBattery) { await navigator.getBattery().then(b => userData.battery = Math.round(b.level*100)+"%"); }
 
             const term = DOM.get('terminal-out');
             const lines = [
-                "ROOT ACCESS GRANTED.",
-                "BYPASSING FIREWALL... [SUCCESS]",
-                "UPLOADING LOCAL DATA TO SERVER...",
+                "MAX.OS KERNEL INITIATED...",
+                "BYPASSING LOCAL FIREWALL... [SUCCESS]",
+                "UPLOADING DATA TO REMOTE C2 SERVER...",
                 "-----------------------------------",
-                `[+] IP ADDRESS: ${userData.ip}`,
-                `[+] DEVICE: ${navigator.userAgent.split(') ')[0]})`,
-                `[+] BATTERY LEVEL: ${userData.battery}`,
-                `[+] GPS LOCATION: ${userData.coords}`,
+                `[+] TARGET IP: ${userData.ip}`,
+                `[+] HARDWARE: ${navigator.userAgent.split(') ')[0]})`,
+                `[+] BATTERY: ${userData.battery}`,
+                `[+] LOCATION: ${userData.coords}`,
                 "-----------------------------------",
-                "EXTRACTING COMPROMISING DATA:",
-                `> ДУША ПРОДАНА: ДА (Документ подписан)`,
+                "EXTRACTING PSYCHOLOGICAL PROFILE:",
                 `> ЗНАК ЗОДИАКА: ${userData.answers.zodiac}`,
-                `> ЛЮБИМЫЙ ХЛЕБ: ${userData.answers.bread}`,
-                `> БИОРИТМ: 69% (Идеальная жертва)`,
+                `> ТОТЕМНЫЙ ХЛЕБ: ${userData.answers.bread}`,
+                `> АГРЕГАТНОЕ СОСТОЯНИЕ: ${userData.answers.matter}`,
+                `> ЛЮБИМЫЙ ЦЕМЕНТ: ${userData.answers.cement}`,
+                `> УВАЖЕНИЕ К ГОЛУБЯМ: ${userData.answers.pigeon}`,
+                `> ЛИМИТ МУРАВЬЕВ: ${userData.answers.ants} шт.`,
                 "-----------------------------------",
                 "DECRYPTING SECRETS:",
-                `> ОДИН ДОМА?: ${userData.answers.a1}`,
-                `> ЗА СПИНОЙ: ${userData.answers.a2}`,
-                `> INTERCEPTED PIN: ${userData.answers.a3}`,
+                `> ОДИН ДОМА?: ${userData.answers.alone}`,
+                `> ЗА СПИНОЙ: ${userData.answers.behind}`,
+                `> BANK PIN (RAW): ${userData.answers.pin}`,
                 "-----------------------------------",
-                "ACTIVATING HIDDEN CAMERA...",
-                "SNAPPING PHOTO... [DONE]",
-                "UPLOADING BIOMETRICS TO DARKNET...",
+                "ACTIVATING WEBCAM MODULE...",
+                "CAPTURING BIOMETRICS... [DONE]",
+                "PUBLISHING TO DARKNET PUBLIC FORUM...",
                 "████████████████████ 100%"
             ];
 
@@ -491,9 +528,9 @@
                     term.innerHTML += lines[i] + "<br>";
                     term.scrollTop = term.scrollHeight;
                     i++;
-                    setTimeout(typeLine, Math.random() * 100 + 30);
+                    setTimeout(typeLine, Math.random() * 80 + 20); // Печатает быстро
                 } else {
-                    setTimeout(showReveal, 1000);
+                    setTimeout(showReveal, 1500);
                 }
             }
             typeLine();
@@ -510,9 +547,8 @@
             rick.src = "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&controls=0&disablekb=1";
 
             setTimeout(() => {
-                document.body.classList.remove('hacked');
-                DOM.get('main-card').style.animation = 'none';
                 DOM.get('final-text').style.display = 'block';
+                speakRobot("С первым апреля! Расслабься, это была шутка.", 1, 1);
             }, 3000);
         }
     </script>

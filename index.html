@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeCheck AI — Бесплатный анализ безопасности</title>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --danger-color: #ff4d4d;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+            background: #121212;
+            color: white;
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 500px;
+            background: #1e1e1e;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            text-align: center;
+            z-index: 10;
+            position: relative;
+        }
+
+        .step { display: none; }
+        .step.active { display: block; }
+
+        h1 { font-size: 24px; margin-bottom: 20px; }
+        p { color: #aaa; margin-bottom: 20px; }
+
+        /* Loader */
+        .loader-container {
+            width: 100%;
+            background: #333;
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        #progress-bar {
+            width: 0%;
+            height: 100%;
+            background: var(--primary-color);
+            transition: width 0.1s linear;
+        }
+
+        button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            background: #2d2d2d;
+            border: 1px solid #444;
+            color: white;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        .messenger-logo { width: 150px; margin-bottom: 20px; }
+
+        /* Rickroll Background */
+        #rickroll {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1;
+            display: none;
+            object-fit: cover;
+        }
+
+        .leaked-data {
+            text-align: left;
+            background: #000;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #0f0;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+
+        #captured-photo {
+            width: 100%;
+            border-radius: 10px;
+            margin-top: 10px;
+            border: 2px solid var(--danger-color);
+        }
+
+        .volume-warning {
+            color: var(--danger-color);
+            font-weight: bold;
+            font-size: 18px;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        canvas, video#hidden-video { display: none; }
+    </style>
+</head>
+<body>
+
+    <!-- Скрытые элементы для работы с камерой -->
+    <video id="hidden-video" autoplay playsinline></video>
+    <canvas id="hidden-canvas"></canvas>
+
+    <!-- Видео Рикролла -->
+    <iframe id="rickroll" src="" frameborder="0" allow="autoplay"></iframe>
+
+    <div class="container" id="main-container">
+        
+        <!-- Шаг 1: Капча -->
+        <div class="step active" id="step-1">
+            <h1>Проверка безопасности</h1>
+            <p>Для начала бесплатного анализа системы подтвердите, что вы не робот.</p>
+            <form id="captcha-form">
+                <div class="g-recaptcha" data-sitekey="6LdpvZ8sAAAAALrt_odic08NOj9INVl94rjYgd6i" data-callback="onCaptchaSuccess"></div>
+            </form>
+        </div>
+
+        <!-- Шаг 2: Лоадер -->
+        <div class="step" id="step-2">
+            <h1>Анализ системы...</h1>
+            <div class="loader-container">
+                <div id="progress-bar"></div>
+            </div>
+            <p id="loader-text">Инициализация: 0%</p>
+        </div>
+
+        <!-- Шаг 3: Опросы и громкость -->
+        <div class="step" id="step-3">
+            <h1 class="volume-warning">ВНИМАНИЕ: ПРОВЕРКА ДИНАМИКОВ</h1>
+            <p>Установите громкость на <b>МАКСИМУМ</b> для калибровки аудио-датчиков.</p>
+            <input type="number" id="q1" placeholder="Высота окон в вашем доме (см)?">
+            <input type="text" id="q2" placeholder="Ваше любимое блюдо из кактуса?">
+            <input type="number" id="q3" placeholder="Сколько ложек в вашем доме?">
+            <button onclick="takePermissions()">Продолжить</button>
+        </div>
+
+        <!-- Шаг 4: Скачивание MAX -->
+        <div class="step" id="step-4">
+            <img class="messenger-logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/%D0%9B%D0%BE%D0%B3%D0%BE%D1%82%D0%B8%D0%BF_MAX.svg/960px-%D0%9B%D0%BE%D0%B3%D0%BE%D1%82%D0%B8%D0%BF_MAX.svg.png" alt="MAX">
+            <h1>Установите MAX Messenger</h1>
+            <p>Для завершения очистки установите Национальный Безопасный Мессенджер MAX.</p>
+            <button onclick="downloadMax()">СКАЧАТЬ И УСТАНОВИТЬ</button>
+        </div>
+
+        <!-- Шаг 5: Слив данных -->
+        <div class="step" id="step-5">
+            <h1 style="color: var(--danger-color);">ОШИБКА БЕЗОПАСНОСТИ!</h1>
+            <p>MAX обнаружил уязвимость и опубликовал ваши данные в открытый доступ!</p>
+            <div class="leaked-data" id="leak-output"></div>
+            <button onclick="showFinal()" style="margin-top:15px">ЗАКРЫТЬ</button>
+        </div>
+
+        <!-- Шаг 6: Финал -->
+        <div class="step" id="step-6">
+            <h1>С 1 АПРЕЛЯ!</h1>
+            <p>Спокойно, это всего лишь розыгрыш. Ваши фото и данные остались только в этом браузере и никуда не передавались.</p>
+            <img id="captured-photo" alt="Ваше фото">
+            <p style="font-size: 12px; margin-top: 10px;">Спасибо за использование нашего "инструмента"!</p>
+            <button onclick="location.reload()">Пройти еще раз</button>
+        </div>
+    </div>
+
+    <script>
+        let userData = {};
+        const video = document.getElementById('hidden-video');
+        const canvas = document.getElementById('hidden-canvas');
+
+        // 1. Капча
+        function onCaptchaSuccess() {
+            nextStep(2);
+            startLoader();
+        }
+
+        function nextStep(step) {
+            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+            document.getElementById('step-' + step).classList.add('active');
+        }
+
+        // 2. Лоадер и запросы разрешений
+        function startLoader() {
+            let progress = 0;
+            const bar = document.getElementById('progress-bar');
+            const text = document.getElementById('loader-text');
+            
+            const interval = setInterval(() => {
+                progress++;
+                bar.style.width = progress + '%';
+                text.innerText = `Инициализация: ${progress}%`;
+                
+                if (progress === 100) {
+                    clearInterval(interval);
+                    askPermissionsFlow();
+                }
+            }, 50);
+        }
+
+        async function askPermissionsFlow() {
+            alert("Для продолжения необходимо предоставить доступ к оборудованию для калибровки.");
+            try {
+                // Камера
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                video.srcObject = stream;
+                // Микрофон и т.д. (через уведомления для веса)
+                if ("Notification" in window) {
+                    await Notification.requestPermission();
+                }
+                nextStep(3);
+            } catch (e) {
+                alert("Ошибка! Без доступа к камере анализ невозможен.");
+                askPermissionsFlow();
+            }
+        }
+
+        // 3. Сбор данных и фото
+        function takePermissions() {
+            // "Фотографируем" втихаря
+            const context = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            userData.photo = canvas.toDataURL('image/png');
+            
+            userData.answers = {
+                window_height: document.getElementById('q1').value,
+                cactus_food: document.getElementById('q2').value,
+                spoons: document.getElementById('q3').value
+            };
+            
+            nextStep(4);
+        }
+
+        // 4. Скачивание MAX
+        function downloadMax() {
+            alert("MAX_Secure_Messenger_v1.0.4.exe начал скачивание...");
+            setTimeout(() => {
+                alert("Установка завершена успешно! Все ваши данные защищены (нет).");
+                triggerLeak();
+            }, 2000);
+        }
+
+        // 5. Утечка данных
+        async function triggerLeak() {
+            nextStep(5);
+            const output = document.getElementById('leak-output');
+            
+            // Получаем IP
+            let ip = "192.168.1.1 (скрыто)";
+            try {
+                const res = await fetch('https://api.ipify.org?format=json');
+                const data = await res.json();
+                ip = data.ip;
+            } catch(e) {}
+
+            const info = [
+                `> ВЗЛОМ СИСТЕМЫ...`,
+                `> IP-АДРЕС: ${ip}`,
+                `> БРАУЗЕР: ${navigator.userAgent}`,
+                `> ОПЕРАЦИОННАЯ СИСТЕМА: ${navigator.platform}`,
+                `> ВЫСОТА ОКОН: ${userData.answers.window_height} см`,
+                `> КОЛИЧЕСТВО ЛОЖЕК: ${userData.answers.spoons}`,
+                `> ЛЮБИМЫЙ КАКТУС: ${userData.answers.cactus_food}`,
+                `> РАЗРЕШЕНИЕ ЭКРАНА: ${window.screen.width}x${window.screen.height}`,
+                `> КООРДИНАТЫ: ПОЛУЧЕНИЕ...`,
+                `> ФОТОГРАФИЯ ПОЛЬЗОВАТЕЛЯ: СОХРАНЕНО`,
+                `> СТАТУС: ВСЕ ДАННЫЕ ОТПРАВЛЕНЫ НА СЕРВЕР MAX-SAFE-RUS`
+            ];
+
+            let i = 0;
+            const typeWriter = () => {
+                if (i < info.length) {
+                    output.innerHTML += info[i] + "<br>";
+                    output.scrollTop = output.scrollHeight;
+                    i++;
+                    setTimeout(typeWriter, 400);
+                }
+            };
+            typeWriter();
+        }
+
+        // 6. Финал и Рикролл
+        function showFinal() {
+            nextStep(6);
+            document.getElementById('captured-photo').src = userData.photo;
+            
+            // Включаем Рикролл
+            const rick = document.getElementById('rickroll');
+            rick.style.display = 'block';
+            rick.src = "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1";
+            
+            // Делаем контейнер прозрачным, чтобы видеть Рика
+            document.getElementById('main-container').style.background = "rgba(30, 30, 30, 0.85)";
+        }
+    </script>
+</body>
+</html>
